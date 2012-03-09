@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class Event {
     private Long id;
+    private Long idTEST;
     private Long owner;
     private String name;
     private String place;
