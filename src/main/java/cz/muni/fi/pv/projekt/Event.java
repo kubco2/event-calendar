@@ -74,4 +74,12 @@ public class Event {
     public void setTo(Date to) {
         this.to = to;
     }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
 }
