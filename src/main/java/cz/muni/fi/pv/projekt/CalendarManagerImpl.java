@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.muni.fi.pv.projekt;
 
 import java.util.List;
@@ -32,5 +27,4 @@ public class CalendarManagerImpl implements CalendarManager {
     public List<User> getUsersForEvent(Event evt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
 }
