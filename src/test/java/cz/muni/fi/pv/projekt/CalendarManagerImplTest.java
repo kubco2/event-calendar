@@ -38,7 +38,7 @@ public class CalendarManagerImplTest {
         userManager.createUser(usr2);
         usr2 = userManager.selectUserByNick("G.I.Jane");
 
-        Event evt = createEvent(usr1.getId(), "THE best event ever", "everywhere",
+        Event evt = createEvent(usr1, "THE best event ever", "everywhere",
                 "the title says it all", new Date(), new Date(), true);
         eventManager.createEvent(evt);
         calendarManager.saveUserEvent(usr2, evt);
@@ -53,14 +53,18 @@ public class CalendarManagerImplTest {
      */
     @Test
     public void testSaveNullUser() {
-        User usr = null;
+        User usr1 = createUser("John Doe", "G.I.Joe", "thisIsAVeryCleverPassword!");
+        userManager.createUser(usr1);
+        usr1 = userManager.selectUserByNick("G.I.Joe");
+        
+        User usr2 = null;
 
-        Event evt = createEvent(usr.getId(), "THE best event ever", "everywhere",
+        Event evt = createEvent(usr1, "THE best event ever", "everywhere",
                 "the title says it all", new Date(), new Date(), true);
         eventManager.createEvent(evt);
 
         try {
-            calendarManager.saveUserEvent(usr, evt);
+            calendarManager.saveUserEvent(usr2, evt);
             fail("Null user was added to the event, no Exception was thrown.");
         } catch (NullPointerException npe) {
             // the exception is expected and correct behavior
@@ -83,7 +87,7 @@ public class CalendarManagerImplTest {
         userManager.createUser(usr2);
         usr2 = userManager.selectUserByNick("G.I.Jane");
 
-        Event evt = createEvent(usr1.getId(), "THE best event ever", "everywhere",
+        Event evt = createEvent(usr1, "THE best event ever", "everywhere",
                 "the title says it all", new Date(), new Date(), true);
         eventManager.createEvent(evt);
         calendarManager.saveUserEvent(usr2, evt);
@@ -105,7 +109,7 @@ public class CalendarManagerImplTest {
         return user;
     }
 
-    private Event createEvent(Long owner, String name, String place, String description, Date from, Date to, boolean shared) {
+    private Event createEvent(User owner, String name, String place, String description, Date from, Date to, boolean shared) {
         Event event = new Event();
         event.setOwner(owner);
         event.setName(name);

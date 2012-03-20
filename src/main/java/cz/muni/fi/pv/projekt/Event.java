@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class Event {
     private Long id;
-    private Long owner;
+    private User owner;
     private String name;
     private String place;
     private String description;
@@ -27,11 +27,11 @@ public class Event {
         this.id = id;
     }
 
-    public Long getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Long owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
