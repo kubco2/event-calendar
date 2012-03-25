@@ -1,0 +1,5 @@
+CREATE TABLE calendar (
+    eventId INT UNSIGNED NOT NULL ,
+    userId INT UNSIGNED NOT NULL ,
+    CONSTRAINT id PRIMARY KEY (eventId,userId)
+) TYPE=innoDB
