@@ -30,14 +30,15 @@ public class UserManagerImpl implements UserManager {
 
     @Resource
     public void setDataSource(DataSource dataSource) {
-        this.jdbc = new JdbcTemplate(dataSource);
-        this.insertUser = new SimpleJdbcInsert(dataSource)
+        jdbc = new JdbcTemplate(dataSource);
+        insertUser = new SimpleJdbcInsert(dataSource)
                 .withTableName("users")
                 .usingColumns("name", "nick", "password")
                 .usingGeneratedKeyColumns("id");
     }
 
     private static final ParameterizedRowMapper<User> USER_MAPPER = new ParameterizedRowMapper<User>() {
+        @Override
         public User mapRow(ResultSet rs, int i) throws SQLException {
             User user = new User();
             user.setId(rs.getLong("id"));
@@ -70,6 +71,7 @@ public class UserManagerImpl implements UserManager {
      * Delete user from database
      * @param usr User for delete
      * @throws NullPointerException if user parameter is null
+     * @throws IllegalArgumentException when trying to delete a user without an ID
      */
     @Override
     public void deleteUser(User usr) {
@@ -77,6 +79,7 @@ public class UserManagerImpl implements UserManager {
         if(usr==null) {
             throw new NullPointerException();
         }
+        if (usr.getId()==null) throw new IllegalArgumentException("The user does not have an ID yet.");
         jdbc.update("DELETE FROM users WHERE id=?",
                 usr.getId());
     }
@@ -96,6 +99,7 @@ public class UserManagerImpl implements UserManager {
         if(nullOrEmpty(usr.getName()) || nullOrEmpty(usr.getPassword())) {
             throw new IllegalArgumentException();
         }
+        if (usr.getId()==null) throw new IllegalArgumentException("The user does not have an ID yet.");
         jdbc.update("UPDATE users SET name=?,password=? WHERE id=?",
                     usr.getName(),usr.getPassword(),usr.getId());
     }
