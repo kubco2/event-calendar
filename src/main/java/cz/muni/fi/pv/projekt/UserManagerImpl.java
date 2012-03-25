@@ -89,6 +89,7 @@ public class UserManagerImpl implements UserManager {
      * @param usr User for update
      * @throws NullPointerException if param is null
      * @throws IllegalArgumentException if properties name,password are null or empty
+     * @throws IllegalArgumentException when trying to update a user without an ID
      */
     @Override
     public void updateUser(User usr) {
