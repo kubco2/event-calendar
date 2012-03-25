@@ -17,7 +17,7 @@ public class Event {
     private String description;
     private Date from;
     private Date to;
-    private boolean shared;
+    private boolean shared = false;
 
     public Long getId() {
         return id;
