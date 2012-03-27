@@ -45,8 +45,8 @@ public class EventManagerImpl implements EventManager {
             event.setId(rs.getLong("id"));
             event.setName(rs.getString("name"));
             event.setDescription(rs.getString("description"));
-            event.setFrom(rs.getDate("from"));
-            event.setTo(rs.getDate("to"));
+            event.setFrom(rs.getDate("timeFrom"));
+            event.setTo(rs.getDate("timeTo"));
             User owner = userManager.selectUserById(rs.getLong("owner"));
             event.setOwner(owner);
             event.setPlace(rs.getString("place"));
