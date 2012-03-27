@@ -1,5 +1,7 @@
 package cz.muni.fi.pv.projekt;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.ApplicationContext;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +19,10 @@ public class CalendarManagerImplTest {
 
     @Before
     public void setUp() {
-        calendarManager = new CalendarManagerImpl();
-        eventManager = new EventManagerImpl();
-        userManager = new UserManagerImpl();
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        userManager = (UserManagerImpl) springCtx.getBean("userManager");
+        calendarManager = (CalendarManagerImpl) springCtx.getBean("calendarManager");
+        eventManager = (EventManagerImpl) springCtx.getBean("eventManager");
     }
 
     /**
