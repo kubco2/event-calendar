@@ -1,11 +1,9 @@
 package cz.muni.fi.pv.projekt;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -14,6 +12,9 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -34,7 +35,7 @@ public class EventManagerImpl implements EventManager {
         jdbc = new JdbcTemplate(dataSource);
         insertEvent = new SimpleJdbcInsert(dataSource)
                 .withTableName("events")
-                .usingColumns("name", "owner", "place", "description", "from", "to", "shared")
+                .usingColumns("name", "owner", "place", "description", "timeFrom", "timeTo", "shared")
                 .usingGeneratedKeyColumns("id");
     }
 
@@ -63,7 +64,15 @@ public class EventManagerImpl implements EventManager {
                 || null == evt.getFrom() || null == evt.getTo() || null == evt.getOwner()) {
             throw new IllegalArgumentException("Some attribute of this event is NULL.");
         }
-        evt.setId(insertEvent.executeAndReturnKey(new BeanPropertySqlParameterSource(evt)).longValue());
+        Map<String,Object> eventMap = new HashMap<String,Object>();
+        eventMap.put("name",evt.getName());
+        eventMap.put("description",evt.getDescription());
+        eventMap.put("timeFrom",evt.getFrom());
+        eventMap.put("timeTo",evt.getTo());
+        eventMap.put("owner",evt.getOwner().getId());
+        eventMap.put("place",evt.getPlace());
+        eventMap.put("shared",evt.isShared());
+        evt.setId(insertEvent.executeAndReturnKey(eventMap).longValue());
     }
 
     @Override

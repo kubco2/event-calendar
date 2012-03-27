@@ -119,7 +119,7 @@ public class CalendarManagerImpl implements CalendarManager {
         if (usr == null) throw new NullPointerException("The user is NULL.");
         if (usr.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
         try {
-            return jdbc.query("SELECT * FROM calendar WHERE userId=?", EVENT_MAPPER, usr.getId());
+            return jdbc.query("SELECT events.* FROM calendar,events WHERE userId=? AND eventId=id", EVENT_MAPPER, usr.getId());
         } catch(IncorrectResultSizeDataAccessException e) {
             return null;
         }
@@ -138,7 +138,7 @@ public class CalendarManagerImpl implements CalendarManager {
         if (evt == null) throw new NullPointerException("The event is NULL.");
         if (evt.getId() == null) throw new IllegalArgumentException("The event does not have an ID yet.");
         try {
-            return jdbc.query("SELECT * FROM calendar WHERE eventId=?", USER_MAPPER, evt.getId());
+            return jdbc.query("SELECT users.* FROM calendar,users WHERE eventId=? AND userId=id", USER_MAPPER, evt.getId());
         } catch(IncorrectResultSizeDataAccessException e) {
             return null;
         }

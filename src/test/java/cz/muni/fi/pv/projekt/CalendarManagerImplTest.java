@@ -1,10 +1,13 @@
 package cz.muni.fi.pv.projekt;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.ApplicationContext;
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.Date;
+import java.util.Random;
+
 import static org.junit.Assert.*;
 
 /**
@@ -33,13 +36,13 @@ public class CalendarManagerImplTest {
      */
     @Test
     public void testSaveUserEvent() {
-        User usr1 = createUser("John Doe", "G.I.Joe", "thisIsAVeryCleverPassword!");
+        User usr1 = createUser("John Doe", generateString(), "thisIsAVeryCleverPassword!");
         userManager.createUser(usr1);
-        usr1 = userManager.selectUserByNick("G.I.Joe");
+        usr1 = userManager.selectUserByNick(usr1.getNick());
 
-        User usr2 = createUser("Jane Doe", "G.I.Jane", "thisIsEvenBetter!");
+        User usr2 = createUser("Jane Doe", generateString(), "thisIsEvenBetter!");
         userManager.createUser(usr2);
-        usr2 = userManager.selectUserByNick("G.I.Jane");
+        usr2 = userManager.selectUserByNick(usr2.getNick());
 
         Event evt = createEvent(usr1, "THE best event ever", "everywhere",
                 "the title says it all", new Date(), new Date(), true);
@@ -56,9 +59,9 @@ public class CalendarManagerImplTest {
      */
     @Test
     public void testSaveNullUser() {
-        User usr1 = createUser("John Doe", "G.I.Joe", "thisIsAVeryCleverPassword!");
+        User usr1 = createUser("John Doe", generateString(), "thisIsAVeryCleverPassword!");
         userManager.createUser(usr1);
-        usr1 = userManager.selectUserByNick("G.I.Joe");
+        usr1 = userManager.selectUserByNick(usr1.getNick());
         
         User usr2 = null;
 
@@ -82,13 +85,13 @@ public class CalendarManagerImplTest {
      */
     @Test
     public void testDeleteUserFromEvent() {
-        User usr1 = createUser("John Doe", "G.I.Joe", "thisIsAVeryCleverPassword!");
+        User usr1 = createUser("John Doe", generateString(), "thisIsAVeryCleverPassword!");
         userManager.createUser(usr1);
-        usr1 = userManager.selectUserByNick("G.I.Joe");
+        usr1 = userManager.selectUserByNick(usr1.getNick());
 
-        User usr2 = createUser("Jane Doe", "G.I.Jane", "thisIsEvenBetter!");
+        User usr2 = createUser("Jane Doe",generateString(), "thisIsEvenBetter!");
         userManager.createUser(usr2);
-        usr2 = userManager.selectUserByNick("G.I.Jane");
+        usr2 = userManager.selectUserByNick(usr2.getNick());
 
         Event evt = createEvent(usr1, "THE best event ever", "everywhere",
                 "the title says it all", new Date(), new Date(), true);
@@ -123,4 +126,16 @@ public class CalendarManagerImplTest {
         event.setShared(shared);
         return event;
     }
+
+    private String generateString() {
+            Random rng = new Random();
+            String characters="randomtextofsomeint";
+            int length = 10;
+            char[] text = new char[length];
+            for (int i = 0; i < length; i++)
+            {
+                text[i] = characters.charAt(rng.nextInt(characters.length()));
+            }
+            return new String(text);
+        }
 }
