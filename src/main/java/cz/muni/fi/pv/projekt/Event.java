@@ -82,4 +82,8 @@ public class Event {
     public void setShared(boolean shared) {
         this.shared = shared;
     }
+    
+    public boolean equals(Event e) {
+        return id==e.getId();
+    }
 }

@@ -15,19 +15,10 @@ import static org.junit.Assert.*;
  * Date: 12.3.2012
  * Time: 15:05
  */
-public class UserManagerImplTest {
-
-    private UserManager userManager;
-
-    @Before
-    public void setUp() throws Exception {
-        //userManager = new UserManagerImpl();
-        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
-        userManager = (UserManagerImpl) springCtx.getBean("userManager");
-    }
+public class UserManagerImplTest  extends TestWrapper {
 
     @Test
-    public void createNullUser() throws Exception {
+    public void createNullUser() {
         User usr = null;
         try {
             userManager.createUser(usr);
@@ -38,7 +29,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void createCorrectUser() throws Exception {
+    public void createCorrectUser() {
         User usr1 = userTemplate("Jakub", "mypass");
         userManager.createUser(usr1);
         assertNotNull("createUser doesn't assign ID",usr1.getId());
@@ -51,7 +42,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void updateNullUser() throws Exception {
+    public void updateNullUser() {
         User usr = null;
         try {
             userManager.updateUser(usr);
@@ -62,7 +53,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void updateUser() throws Exception {
+    public void updateUser() {
         User usr1 = userTemplate("Jakub", "mypass");
         userManager.createUser(usr1);
         usr1.setName(generateString());
@@ -74,7 +65,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void deleteNullUser() throws Exception {
+    public void deleteNullUser() {
         User usr = null;
         try {
             userManager.deleteUser(usr);
@@ -85,7 +76,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void deleteUser() throws Exception {
+    public void deleteUser() {
         User usr = userTemplate("User name 1","pass1");
         userManager.createUser(usr);
         User usr1 = userManager.selectUserById(usr.getId());
@@ -96,7 +87,7 @@ public class UserManagerImplTest {
     }
 
     @Test
-    public void selectUserById() throws Exception {
+    public void selectUserById() {
         User usr1 = userTemplate("User name 1","pass1");
         User usr2 = userTemplate("User name 2","pass2");
         userManager.createUser(usr1);

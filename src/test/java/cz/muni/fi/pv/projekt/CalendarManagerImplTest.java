@@ -14,19 +14,7 @@ import static org.junit.Assert.*;
  *
  * @author Zuzka
  */
-public class CalendarManagerImplTest {
-
-    private CalendarManagerImpl calendarManager;
-    private EventManagerImpl eventManager;
-    private UserManagerImpl userManager;
-
-    @Before
-    public void setUp() {
-        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
-        userManager = (UserManagerImpl) springCtx.getBean("userManager");
-        calendarManager = (CalendarManagerImpl) springCtx.getBean("calendarManager");
-        eventManager = (EventManagerImpl) springCtx.getBean("eventManager");
-    }
+public class CalendarManagerImplTest  extends TestWrapper {
 
     /**
      * Test of saveUserEvent method.
@@ -89,7 +77,7 @@ public class CalendarManagerImplTest {
         userManager.createUser(usr1);
         usr1 = userManager.selectUserByNick(usr1.getNick());
 
-        User usr2 = createUser("Jane Doe",generateString(), "thisIsEvenBetter!");
+        User usr2 = createUser("Jane Doe", generateString(), "thisIsEvenBetter!");
         userManager.createUser(usr2);
         usr2 = userManager.selectUserByNick(usr2.getNick());
 
@@ -128,14 +116,14 @@ public class CalendarManagerImplTest {
     }
 
     private String generateString() {
-            Random rng = new Random();
-            String characters="randomtextofsomeint";
-            int length = 10;
-            char[] text = new char[length];
-            for (int i = 0; i < length; i++)
-            {
-                text[i] = characters.charAt(rng.nextInt(characters.length()));
-            }
-            return new String(text);
+        Random rng = new Random();
+        String characters="randomtextofsomeint";
+        int length = 10;
+        char[] text = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            text[i] = characters.charAt(rng.nextInt(characters.length()));
         }
+        return new String(text);
+    }
 }

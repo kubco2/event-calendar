@@ -61,7 +61,7 @@ public class EventManagerImpl implements EventManager {
         log.debug("createEvent({})", evt);
         if (evt == null) throw new NullPointerException();
         if (nullOrEmpty(evt.getName()) || nullOrEmpty(evt.getPlace()) || nullOrEmpty(evt.getDescription())
-                || null == evt.getFrom() || null == evt.getTo() || null == evt.getOwner()) {
+                || null == evt.getFrom() || null == evt.getTo() || null == evt.getOwner() || null == evt.getOwner().getId()) {
             throw new IllegalArgumentException("Some attribute of this event is NULL.");
         }
         Map<String,Object> eventMap = new HashMap<String,Object>();
