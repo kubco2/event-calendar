@@ -1,6 +1,7 @@
 package cz.muni.fi.pv.projekt;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -75,7 +76,81 @@ public class EventManagerImplTest extends TestWrapper {
         } catch (Exception e) {}
     }
     
+    @Test
+    public void testUpdateNull() {
+        Event evt = null;
+        try {
+            eventManager.updateEvent(evt);
+            fail("Updated a null event.");
+        } catch (NullPointerException e) {}
+    }
     
+    @Test
+    public void testUpdateNullId() {
+        Event evt = new Event();
+        evt.setName(generateString());
+        evt.setShared(true);
+        try {
+            eventManager.updateEvent(evt);
+            fail("Updated an event with null ID.");
+        } catch (IllegalArgumentException e) {}
+    }
+    
+    @Test
+    public void testUpdateCorrect() {
+        User usr = getNewUser();
+        userManager.createUser(usr);
+        Event evt = getNewEvent(usr);
+        eventManager.createEvent(evt);
+        
+        String name1 = evt.getName();
+        String name2 = "updated event name";
+        evt.setName(name2);
+        
+        eventManager.updateEvent(evt);
+        eventManager.selectEventById(evt.getId());
+        assertFalse(name1.equals(eventManager.selectEventById(evt.getId()).getName()));
+    }
+    
+    @Test
+    public void testSelectNull() {
+        try {
+            eventManager.selectEventById(null);
+            fail("Selected a null ID event.");
+        } catch (NullPointerException e) {}
+    }
+    
+    @Test
+    public void testSelectAll() {
+        setUp();
+        User usr = getNewUser();
+        userManager.createUser(usr);
+        Event evt1 = getNewEvent(usr);
+        eventManager.createEvent(evt1);
+        Event evt2 = getNewEvent(usr);
+        eventManager.createEvent(evt2);
+        Event evt3 = getNewEvent(usr, false);
+        eventManager.createEvent(evt3);
+        
+        List<Event> evts = eventManager.selectAllEvents();
+        assertEquals(3, evts.size());
+    }
+    
+    @Test
+    public void testSelectShared() {
+        setUp();
+        User usr = getNewUser();
+        userManager.createUser(usr);
+        Event evt1 = getNewEvent(usr);
+        eventManager.createEvent(evt1);
+        Event evt2 = getNewEvent(usr);
+        eventManager.createEvent(evt2);
+        Event evt3 = getNewEvent(usr, false);
+        eventManager.createEvent(evt3);
+        
+        List<Event> evts = eventManager.selectSharedEvents();
+        assertEquals(2, evts.size());
+    }
     
     
     private User getNewUser() {
@@ -87,13 +162,17 @@ public class EventManagerImplTest extends TestWrapper {
     }
     
     private Event getNewEvent(User owner) {
+        return getNewEvent(owner, true);
+    }
+    
+    private Event getNewEvent(User owner, boolean shared) {
         Event evt = new Event();
         evt.setName(generateString()); 
         evt.setDescription(generateString());
         evt.setFrom(new Date());
         evt.setTo(new Date());
         evt.setPlace(generateString());
-        evt.setShared(true);
+        evt.setShared(shared);
         evt.setOwner(owner);
         return evt;
     }
