@@ -15,6 +15,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -28,7 +30,12 @@ public class EventManagerImpl implements EventManager {
     private JdbcTemplate jdbc;
     private SimpleJdbcInsert insertEvent;
 
-    private static UserManager userManager = new UserManagerImpl();
+    private static UserManager userManager;
+    
+    @Autowired
+    public EventManagerImpl(ApplicationContext springCtx) {
+        userManager = (UserManagerImpl) springCtx.getBean("userManager");
+    }
 
     @Resource
     public void setDataSource(DataSource dataSource) {
@@ -39,7 +46,7 @@ public class EventManagerImpl implements EventManager {
                 .usingGeneratedKeyColumns("id");
     }
 
-    private static final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
+    private final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
         @Override
         public Event mapRow(ResultSet rs, int i) throws SQLException {
             Event event = new Event();
@@ -88,13 +95,13 @@ public class EventManagerImpl implements EventManager {
         log.debug("updateEvent({})", evt);
         if (evt == null) throw new NullPointerException();
         if (nullOrEmpty(evt.getName()) || nullOrEmpty(evt.getPlace()) || nullOrEmpty(evt.getDescription())
-                || null == evt.getFrom() || null == evt.getTo() || null == evt.getOwner()) {
+                || null == evt.getFrom() || null == evt.getTo() || null == evt.getOwner()|| null == evt.getOwner().getId()) {
             throw new IllegalArgumentException("Some attribute of this event is NULL.");
         }
         if (evt.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
         jdbc.update("UPDATE events SET name=?,place=?,description=?,from=?,to=?,owner=?,shared=? WHERE id=?",
                 evt.getName(), evt.getPlace(), evt.getDescription(), evt.getFrom(),
-                evt.getTo(), evt.getOwner(), evt.isShared(), evt.getId());
+                evt.getTo(), evt.getOwner().getId(), evt.isShared(), evt.getId());
     }
 
     @Override

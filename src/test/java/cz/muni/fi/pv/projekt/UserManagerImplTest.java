@@ -1,12 +1,6 @@
 package cz.muni.fi.pv.projekt;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import java.util.Random;
-
 import static org.junit.Assert.*;
 
 /**
@@ -16,9 +10,9 @@ import static org.junit.Assert.*;
  * Time: 15:05
  */
 public class UserManagerImplTest  extends TestWrapper {
-
+    
     @Test
-    public void createNullUser() {
+    public void testCreateNullUser() {
         User usr = null;
         try {
             userManager.createUser(usr);
@@ -27,9 +21,18 @@ public class UserManagerImplTest  extends TestWrapper {
             // OK
         }
     }
+    
+    @Test
+    public void testCreateUserNullAttr() {
+        User usr = new User();
+        try {
+            userManager.createUser(usr);
+            fail("User with null attributes was created.");
+        } catch (IllegalArgumentException ex) {}
+    }
 
     @Test
-    public void createCorrectUser() {
+    public void testCreateCorrectUser() {
         User usr1 = userTemplate("Jakub", "mypass");
         userManager.createUser(usr1);
         assertNotNull("createUser doesn't assign ID",usr1.getId());
@@ -42,7 +45,7 @@ public class UserManagerImplTest  extends TestWrapper {
     }
 
     @Test
-    public void updateNullUser() {
+    public void testUpdateNullUser() {
         User usr = null;
         try {
             userManager.updateUser(usr);
@@ -53,7 +56,16 @@ public class UserManagerImplTest  extends TestWrapper {
     }
 
     @Test
-    public void updateUser() {
+    public void testUpdateNullId() {
+        User usr = getNewUser();
+        try {
+            userManager.updateUser(usr);
+            fail("User with null ID was updated.");
+        } catch (IllegalArgumentException ex) {}
+    }
+    
+    @Test
+    public void testUpdateUser() {
         User usr1 = userTemplate("Jakub", "mypass");
         userManager.createUser(usr1);
         usr1.setName(generateString());
@@ -65,7 +77,7 @@ public class UserManagerImplTest  extends TestWrapper {
     }
 
     @Test
-    public void deleteNullUser() {
+    public void testDeleteNullUser() {
         User usr = null;
         try {
             userManager.deleteUser(usr);
@@ -74,9 +86,18 @@ public class UserManagerImplTest  extends TestWrapper {
             // OK
         }
     }
+    
+    @Test
+    public void testDeleteNullId() {
+        User usr = getNewUser();
+        try {
+            userManager.updateUser(usr);
+            fail("User with null ID was updated.");
+        } catch (IllegalArgumentException ex) {}
+    }
 
     @Test
-    public void deleteUser() {
+    public void testDeleteCorrectUser() {
         User usr = userTemplate("User name 1","pass1");
         userManager.createUser(usr);
         User usr1 = userManager.selectUserById(usr.getId());
@@ -87,7 +108,7 @@ public class UserManagerImplTest  extends TestWrapper {
     }
 
     @Test
-    public void selectUserById() {
+    public void testSelectUserById() {
         User usr1 = userTemplate("User name 1","pass1");
         User usr2 = userTemplate("User name 2","pass2");
         userManager.createUser(usr1);
@@ -97,6 +118,31 @@ public class UserManagerImplTest  extends TestWrapper {
                 userManager.selectUserById(usr2.getId())};
         assertArrayEquals("SelectUserById method does not work correct",users,usersGot);
     }
+    
+    @Test
+    public void testSelectUserNullId() {
+        try {
+            userManager.selectUserById(null);
+            fail("Selected a user with null ID.");
+        } catch (NullPointerException e) {}
+    }
+    
+    @Test
+    public void testSelectUserByNick() {
+        User usr = getNewUser();
+        userManager.createUser(usr);
+        User usr2 = userManager.selectUserByNick(usr.getNick());
+        assertEqualsLong(usr.getId(), usr2.getId());
+        assertEqualsString(usr.getNick(), usr2.getNick());
+    }
+    
+    @Test
+    public void testSelectUserNullNick() {
+        try {
+            userManager.selectUserByNick(null);
+            fail("Selected a user with null nick.");
+        } catch (NullPointerException e) {}
+    }
 
     private User userTemplate(String name, String pass) {
         User user = new User();
@@ -105,17 +151,4 @@ public class UserManagerImplTest  extends TestWrapper {
         user.setPassword(pass);
         return user;
     }
-
-    private String generateString() {
-        Random rng = new Random();
-        String characters="randomtextofsomeint";
-        int length = 10;
-        char[] text = new char[length];
-        for (int i = 0; i < length; i++)
-        {
-            text[i] = characters.charAt(rng.nextInt(characters.length()));
-        }
-        return new String(text);
-    }
-
 }

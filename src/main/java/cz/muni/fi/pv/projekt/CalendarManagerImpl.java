@@ -16,6 +16,8 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -29,7 +31,12 @@ public class CalendarManagerImpl implements CalendarManager {
     private JdbcTemplate jdbc;
     private SimpleJdbcInsert insertUserToEvent;
 
-    private static UserManager userManager = new UserManagerImpl();
+    private static UserManager userManager;
+    
+    @Autowired
+    public CalendarManagerImpl(ApplicationContext springCtx) {
+        userManager = (UserManagerImpl) springCtx.getBean("userManager");
+    }
 
     @Resource
     public void setDataSource(DataSource dataSource) {
