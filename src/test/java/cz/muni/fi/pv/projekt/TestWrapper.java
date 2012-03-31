@@ -23,7 +23,9 @@ public class TestWrapper {
             "CREATE TABLE calendar ("
             + "    eventId INT UNSIGNED NOT NULL ,"
             + "    userId INT UNSIGNED NOT NULL ,"
-            + "    CONSTRAINT id PRIMARY KEY (eventId,userId)"
+            + "    CONSTRAINT id PRIMARY KEY (eventId,userId),"
+            + "    FOREIGN KEY (eventId) REFERENCES events(id) ON DELETE CASCADE ON UPDATE NO ACTION,"
+            + "    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE NO ACTION"
             + ") TYPE=innoDB";
     private static String createUsr = 
             "CREATE TABLE users ("
@@ -41,7 +43,10 @@ public class TestWrapper {
             + "    description TEXT NOT NULL ,"
             + "    timeFrom DATETIME NOT NULL ,"
             + "    timeTo DATETIME NOT NULL ,"
-            + "    shared TINYINT(1) NOT NULL) TYPE=innoDB";
+            + "    shared TINYINT(1) NOT NULL,"
+            + "    INDEX owner_id (owner),"
+            + "    FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE ON UPDATE NO ACTION"
+            + ") TYPE=innoDB";
     private static final String drop = "DROP TABLE ";
     private static String dropCal = drop+"calendar";
     private static String dropUsr = drop+"users";
@@ -87,9 +92,9 @@ public class TestWrapper {
     
     private static  void createTables() {
         logger.info("... Recreating the tables ...");
-        jdbc.execute(createCal);
-        jdbc.execute(createEvt);
         jdbc.execute(createUsr);
+        jdbc.execute(createEvt);
+        jdbc.execute(createCal);
     }
     
     protected static User getNewUser() {

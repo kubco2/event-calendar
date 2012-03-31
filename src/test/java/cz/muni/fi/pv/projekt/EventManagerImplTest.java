@@ -67,10 +67,8 @@ public class EventManagerImplTest extends TestWrapper {
         eventManager.createEvent(evt);
         
         eventManager.deleteEvent(evt);
-        try {
-            eventManager.selectEventById(evt.getId());
-            fail("The event was not deleted.");
-        } catch (Exception e) {}
+        
+        assertNull("The event was not deleted.", eventManager.selectEventById(evt.getId()));
     }
     
     @Test
