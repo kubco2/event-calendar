@@ -72,6 +72,7 @@ public class UserManagerImpl implements UserManager {
      * @param usr User for delete
      * @throws NullPointerException if user parameter is null
      * @throws IllegalArgumentException when trying to delete a user without an ID
+     * @throws org.springframework.dao.DataAccessException runtime exception
      */
     @Override
     public void deleteUser(User usr) {
@@ -88,8 +89,8 @@ public class UserManagerImpl implements UserManager {
      * Update name or password of user
      * @param usr User for update
      * @throws NullPointerException if param is null
-     * @throws IllegalArgumentException if properties name,password are null or empty
-     * @throws IllegalArgumentException when trying to update a user without an ID
+     * @throws IllegalArgumentException if properties name,password are null or empty or when trying to update a user without an ID
+     * @throws org.springframework.dao.DataAccessException runtime exception
      */
     @Override
     public void updateUser(User usr) {
@@ -110,6 +111,7 @@ public class UserManagerImpl implements UserManager {
      * @param id user's id
      * @return User if user with this id is in database, otherwise NULL 
      * @throws NullPointerException if parameter is null
+     * @throws org.springframework.dao.DataAccessException runtime exception
      */
     @Override
     public User selectUserById(Long id) {
@@ -130,6 +132,7 @@ public class UserManagerImpl implements UserManager {
      * @param nick user's nickname
      * @return User if user with this nickname is in database, otherwise NULL
      * @throws NullPointerException if nick is null
+     * @throws org.springframework.dao.DataAccessException runtime exception
      */
     @Override
     public User selectUserByNick(String nick) {
@@ -148,6 +151,7 @@ public class UserManagerImpl implements UserManager {
     /**
      * select all user in database
      * @return list of users
+     * @throws org.springframework.dao.DataAccessException runtime exception
      */
     @Override
     public List<User> selectAllUsers() {

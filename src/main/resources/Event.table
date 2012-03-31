@@ -6,5 +6,7 @@ CREATE TABLE events (
     description TEXT NOT NULL ,
     timeFrom DATETIME NOT NULL ,
     timeTo DATETIME NOT NULL ,
-    shared TINYINT(1) NOT NULL
+    shared TINYINT(1) NOT NULL,
+    INDEX owner_id (owner),
+    FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE ON UPDATE NO ACTION
 ) TYPE=innoDB

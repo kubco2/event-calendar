@@ -2,6 +2,9 @@ package cz.muni.fi.pv.projekt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -15,8 +18,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -63,6 +64,13 @@ public class EventManagerImpl implements EventManager {
         }
     };
 
+    /**
+     * create event and assign ID
+     * @param evt event to create
+     * @throws NullPointerException if event is null
+     * @throws IllegalArgumentException if some of properties in event are null
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public void createEvent(Event evt) {
         log.debug("createEvent({})", evt);
@@ -80,8 +88,19 @@ public class EventManagerImpl implements EventManager {
         eventMap.put("place",evt.getPlace());
         eventMap.put("shared",evt.isShared());
         evt.setId(insertEvent.executeAndReturnKey(eventMap).longValue());
+
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        CalendarManager calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
+        calendarManager.saveUserEvent(evt.getOwner(),evt);
     }
 
+    /**
+     * delete event
+     * @param evt event to delete
+     * @throws NullPointerException if event is null
+     * @throws IllegalArgumentException if ID of event is null
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public void deleteEvent(Event evt) {
         log.debug("deleteEvent({})", evt);
@@ -90,6 +109,13 @@ public class EventManagerImpl implements EventManager {
         jdbc.update("DELETE FROM events WHERE id=?", evt.getId());
     }
 
+    /**
+     * update content of event
+     * @param evt event to update
+     * @throws NullPointerException if event is null
+     * @throws IllegalArgumentException if some of properties are null or empty
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public void updateEvent(Event evt) {
         log.debug("updateEvent({})", evt);
@@ -99,11 +125,18 @@ public class EventManagerImpl implements EventManager {
             throw new IllegalArgumentException("Some attribute of this event is NULL.");
         }
         if (evt.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
-        jdbc.update("UPDATE events SET name=?,place=?,description=?,from=?,to=?,owner=?,shared=? WHERE id=?",
+        jdbc.update("UPDATE events SET name=?,place=?,description=?,timeFrom=?,timeTo=?,owner=?,shared=? WHERE id=?",
                 evt.getName(), evt.getPlace(), evt.getDescription(), evt.getFrom(),
                 evt.getTo(), evt.getOwner().getId(), evt.isShared(), evt.getId());
     }
 
+    /**
+     * select event by OD
+     * @param id assigned to event
+     * @return event with this ID
+     * @throws NullPointerException if ID is null;
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public Event selectEventById(Long id) {
         log.debug("selectEventById({})", id);
@@ -116,6 +149,11 @@ public class EventManagerImpl implements EventManager {
         }
     }
 
+    /**
+     * select all events in database
+     * @return list of events
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public List<Event> selectAllEvents() {
         log.debug("selectAllEvents()");
@@ -123,6 +161,11 @@ public class EventManagerImpl implements EventManager {
                            EVENT_MAPPER);
     }
 
+    /**
+     * select all shared events from database
+     * @return list of shared events
+     * @throws org.springframework.dao.DataAccessException runtime exception
+     */
     @Override
     public List<Event> selectSharedEvents() {
         log.debug("selectSharedEvents()");
