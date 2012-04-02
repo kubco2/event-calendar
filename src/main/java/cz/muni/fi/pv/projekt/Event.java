@@ -7,7 +7,6 @@ import java.util.Date;
  * User: xjanco
  * Date: 28.2.2012
  * Time: 8:08:38
- * To change this template use File | Settings | File Templates.
  */
 public class Event {
     private Long id;

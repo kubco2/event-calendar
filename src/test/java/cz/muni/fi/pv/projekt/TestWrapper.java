@@ -1,15 +1,18 @@
 package cz.muni.fi.pv.projekt;
 
-import java.util.Date;
-import java.util.Random;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.Date;
+import java.util.Random;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -54,7 +57,7 @@ public class TestWrapper {
     
     protected static ApplicationContext springCtx;
     protected static CalendarManagerImpl calendarManager;
-    protected static EventManagerImpl eventManager;
+    protected static EventManager eventManager;
     protected static UserManagerImpl userManager;
     private static DBHelper dbh;
     protected static JdbcTemplate jdbc;
@@ -66,10 +69,10 @@ public class TestWrapper {
         dbh = (DBHelper)springCtx.getBean("dbh");
         userManager = (UserManagerImpl) springCtx.getBean("userManager");
         calendarManager = (CalendarManagerImpl) springCtx.getBean("calendarManager");
-        eventManager = (EventManagerImpl) springCtx.getBean("eventManager");
+        eventManager = (EventManager) springCtx.getBean("eventManager");
         jdbc = (dbh).getJdbc();
         userManager.setDataSource(dbh.getDS());
-        eventManager.setDataSource(dbh.getDS());
+        //eventManager.setDataSource(dbh.getDS());
         calendarManager.setDataSource(dbh.getDS());
         recreateTables();
     }

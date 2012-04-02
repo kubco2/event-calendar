@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,9 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -23,8 +24,7 @@ import java.util.List;
 @Repository("userManager")
 public class UserManagerImpl implements UserManager {
 
-    final static Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
-
+    private final static Logger log = LoggerFactory.getLogger(UserManagerImpl.class);
     private JdbcTemplate jdbc;
     private SimpleJdbcInsert insertUser;
 
@@ -49,76 +49,49 @@ public class UserManagerImpl implements UserManager {
         }
     };
 
-    /**
-     * Insert user to database. When user is inserted, he get ID
-     * @param usr User to create
-     * @throws NullPointerException if user is NULL
-     * @throws IllegalArgumentException if some of user properties are NULL or empty, except ID
-     */
     @Override
     public void createUser(User usr) {
         log.debug("createUser({})",usr);
-        if(usr==null) {
-            throw new NullPointerException();
-        }
-        if(nullOrEmpty(usr.getName()) || nullOrEmpty(usr.getNick()) || nullOrEmpty(usr.getPassword())) {
-            throw new IllegalArgumentException();
-        }
-        usr.setId(insertUser.executeAndReturnKey(new BeanPropertySqlParameterSource(usr)).longValue());
+        userValidation(usr);
+
+        Map<String,Object> userMap = new HashMap<String,Object>();
+        userMap.put("name",usr.getName());
+        userMap.put("nick",usr.getNick());
+        userMap.put("password", usr.getPassword());
+        usr.setId(insertUser.executeAndReturnKey(userMap).longValue());
     }
 
-    /**
-     * Delete user from database
-     * @param usr User for delete
-     * @throws NullPointerException if user parameter is null
-     * @throws IllegalArgumentException when trying to delete a user without an ID
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public void deleteUser(User usr) {
         log.debug("deleteUser({})",usr);
-        if(usr==null) {
-            throw new NullPointerException();
+        userValidation(usr);
+        if (usr.getId()==null) {
+            throw new IllegalArgumentException("The user does not have an ID yet.");
         }
-        if (usr.getId()==null) throw new IllegalArgumentException("The user does not have an ID yet.");
+
         jdbc.update("DELETE FROM users WHERE id=?",
-                usr.getId());
+                    usr.getId());
     }
 
-    /**
-     * Update name or password of user
-     * @param usr User for update
-     * @throws NullPointerException if param is null
-     * @throws IllegalArgumentException if properties name,password are null or empty or when trying to update a user without an ID
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public void updateUser(User usr) {
         log.debug("updateUser({})",usr);
-        if(usr==null) {
-            throw new NullPointerException();
+        userValidation(usr);
+        if (usr.getId()==null) {
+            throw new IllegalArgumentException("The user does not have an ID yet.");
         }
-        if(nullOrEmpty(usr.getName()) || nullOrEmpty(usr.getPassword())) {
-            throw new IllegalArgumentException();
-        }
-        if (usr.getId()==null) throw new IllegalArgumentException("The user does not have an ID yet.");
+
         jdbc.update("UPDATE users SET name=?,password=? WHERE id=?",
                     usr.getName(),usr.getPassword(),usr.getId());
     }
 
-    /**
-     * Select user by Id from database
-     * @param id user's id
-     * @return User if user with this id is in database, otherwise NULL 
-     * @throws NullPointerException if parameter is null
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public User selectUserById(Long id) {
         log.debug("selectUserById({})",id);
         if(id==null) {
             throw new NullPointerException();
         }
+
         try {
             return jdbc.queryForObject("SELECT * FROM users WHERE id=?",
                                         USER_MAPPER,id);
@@ -127,19 +100,13 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
-    /**
-     * Select user by nickname from database
-     * @param nick user's nickname
-     * @return User if user with this nickname is in database, otherwise NULL
-     * @throws NullPointerException if nick is null
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public User selectUserByNick(String nick) {
         log.debug("selectUserByNick({})",nick);
         if(nick==null) {
             throw new NullPointerException();
         }
+
         try {
             return jdbc.queryForObject("SELECT * FROM users WHERE nick=?",
                                         USER_MAPPER,nick);
@@ -148,11 +115,6 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
-    /**
-     * select all user in database
-     * @return list of users
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public List<User> selectAllUsers() {
         log.debug("selectAllUsers()");
@@ -162,5 +124,14 @@ public class UserManagerImpl implements UserManager {
     
     private boolean nullOrEmpty(String str) {
         return str == null || "".equals(str);
+    }
+    
+    private void userValidation(User user) {
+        if(user == null) {
+            throw new NullPointerException();
+        }
+        if( nullOrEmpty(user.getNick()) || nullOrEmpty(user.getName()) || nullOrEmpty(user.getPassword()) ) {
+            throw new IllegalArgumentException("User cannot have null/empty attributes");
+        }
     }
 }

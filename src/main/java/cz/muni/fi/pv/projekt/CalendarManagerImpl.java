@@ -21,15 +21,15 @@ import java.util.List;
 @Repository("calendarManager")
 public class CalendarManagerImpl implements CalendarManager {
 
-    final static Logger log = LoggerFactory.getLogger(CalendarManagerImpl.class);
-
+    private final static Logger log = LoggerFactory.getLogger(CalendarManagerImpl.class);
     private JdbcTemplate jdbc;
-
     private static UserManager userManager;
     
     @Autowired
     public CalendarManagerImpl(ApplicationContext springCtx) {
-        userManager = (UserManagerImpl) springCtx.getBean("userManager");
+        if(userManager == null) {
+            initUserManager(springCtx);
+        }
     }
 
     @Resource
@@ -66,14 +66,6 @@ public class CalendarManagerImpl implements CalendarManager {
         }
     };
 
-    /**
-     * Adds the user to the event.
-     * @param usr User
-     * @param evt user is assigned to this event
-     * @throws NullPointerException if any of the parameters is null.
-     * @throws IllegalArgumentException if the user or the event don't have an id.
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public void saveUserEvent(User usr, Event evt) {
         log.debug("saveUserEvent({}, {})", usr, evt);
@@ -81,21 +73,13 @@ public class CalendarManagerImpl implements CalendarManager {
         if (evt == null) throw new NullPointerException("The event is NULL.");
         if (usr.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
         if (evt.getId() == null) throw new IllegalArgumentException("The event does not have an ID yet.");
-        System.out.println(evt.isShared());
         if(!evt.isShared() && !usr.equals(evt.getOwner())) {
             throw new IllegalArgumentException("This user cannot be assigned to the event");
         }
+
         jdbc.update("INSERT INTO calendar(eventId,userId) VALUES(?,?)",evt.getId(),usr.getId());
     }
 
-    /**
-     * Revokes user's participation in the event.
-     * @param usr User
-     * @param evt Event
-     * @throws NullPointerException if any of the parameters is null.
-     * @throws IllegalArgumentException if the user or the event don't have an id.
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public void deleteUserFromEvent(User usr, Event evt) {
         log.debug("deleteUserFromEvent({}, {})", usr, evt);
@@ -103,41 +87,40 @@ public class CalendarManagerImpl implements CalendarManager {
         if (evt == null) throw new NullPointerException("The event is NULL.");
         if (usr.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
         if (evt.getId() == null) throw new IllegalArgumentException("The event does not have an ID yet.");
+
         jdbc.update("DELETE FROM calendar WHERE eventId=? AND userId=?",
                 evt.getId(), usr.getId());
     }
 
-    /**
-     * Lists all the events this user joined/created.
-     * @param usr User
-     * @return List of events this user joined/created.
-     * @throws NullPointerException if the user is null.
-     * @throws IllegalArgumentException if the user doesn't have an id.
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public List<Event> getEventsForUser(User usr) {
         log.debug("getEventsForUser({})", usr);
-        if (usr == null) throw new NullPointerException("The user is NULL.");
-        if (usr.getId() == null) throw new IllegalArgumentException("The user does not have an ID yet.");
+        if (usr == null) {
+            throw new NullPointerException("The user is NULL.");
+        }
+        if (usr.getId() == null) {
+            throw new IllegalArgumentException("The user does not have an ID yet.");
+        }
 
         return jdbc.query("SELECT events.* FROM calendar,events WHERE userId=? AND eventId=id", EVENT_MAPPER, usr.getId());
     }
 
-    /**
-     * Lists all the users participating in this event.
-     * @param evt Event
-     * @return List of users for this event.
-     * @throws NullPointerException if the event is null.
-     * @throws IllegalArgumentException if the event doesn't have an id.
-     * @throws org.springframework.dao.DataAccessException runtime exception
-     */
     @Override
     public List<User> getUsersForEvent(Event evt) {
         log.debug("getUsersForEvent({})", evt);
-        if (evt == null) throw new NullPointerException("The event is NULL.");
-        if (evt.getId() == null) throw new IllegalArgumentException("The event does not have an ID yet.");
+        if (evt == null) {
+            throw new NullPointerException("The event is NULL.");
+        }
+        if (evt.getId() == null) {
+            throw new IllegalArgumentException("The event does not have an ID yet.");
+        }
 
         return jdbc.query("SELECT users.* FROM calendar,users WHERE eventId=? AND userId=id", USER_MAPPER, evt.getId());
+    }
+
+    private synchronized void initUserManager(ApplicationContext springCtx) {
+        if(userManager == null) {
+            userManager = (UserManager) springCtx.getBean("userManager");
+        }
     }
 }
