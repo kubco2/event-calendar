@@ -2,8 +2,6 @@ package cz.muni.fi.pv.projekt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.stereotype.Repository;
@@ -23,13 +21,11 @@ public class CalendarManagerImpl implements CalendarManager {
 
     private final static Logger log = LoggerFactory.getLogger(CalendarManagerImpl.class);
     private JdbcTemplate jdbc;
-    private static UserManager userManager;
-    
-    @Autowired
-    public CalendarManagerImpl(ApplicationContext springCtx) {
-        if(userManager == null) {
-            initUserManager(springCtx);
-        }
+    private UserManager userManager;
+
+    @Resource
+    public void setUserManager(UserManager userManager) {
+        this.userManager = userManager;
     }
 
     @Resource
@@ -37,7 +33,7 @@ public class CalendarManagerImpl implements CalendarManager {
         jdbc = new JdbcTemplate(dataSource);
     }
 
-    private static final ParameterizedRowMapper<User> USER_MAPPER = new ParameterizedRowMapper<User>() {
+    private final ParameterizedRowMapper<User> USER_MAPPER = new ParameterizedRowMapper<User>() {
         @Override
         public User mapRow(ResultSet rs, int i) throws SQLException {
             User user = new User();
@@ -49,7 +45,7 @@ public class CalendarManagerImpl implements CalendarManager {
         }
     };
 
-    private static final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
+    private final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
         @Override
         public Event mapRow(ResultSet rs, int i) throws SQLException {
             Event event = new Event();
@@ -118,9 +114,4 @@ public class CalendarManagerImpl implements CalendarManager {
         return jdbc.query("SELECT users.* FROM calendar,users WHERE eventId=? AND userId=id", USER_MAPPER, evt.getId());
     }
 
-    private synchronized void initUserManager(ApplicationContext springCtx) {
-        if(userManager == null) {
-            userManager = (UserManager) springCtx.getBean("userManager");
-        }
-    }
 }

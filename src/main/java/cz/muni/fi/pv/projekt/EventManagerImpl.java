@@ -2,8 +2,6 @@ package cz.muni.fi.pv.projekt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -29,16 +27,17 @@ public class EventManagerImpl implements EventManager {
     private final static Logger log = LoggerFactory.getLogger(EventManagerImpl.class);
     private JdbcTemplate jdbc;
     private SimpleJdbcInsert insertEvent;
-    private static UserManager userManager;
-    private static CalendarManager calendarManager;
+    private UserManager userManager;
+    private CalendarManager calendarManager;
 
-    @Autowired
-    public EventManagerImpl(ApplicationContext springCtx) {
-        if(userManager == null || calendarManager == null) {
-            initManagers(springCtx);
-        }
+    @Resource
+    public void setUserManager(UserManager userManager) {
+        this.userManager = userManager;
     }
-
+    @Resource
+    public void setCalendarManager(CalendarManager calendarManager) {
+        this.calendarManager = calendarManager;
+    }
     @Resource
     public void setDataSource(DataSource dataSource) {
         jdbc = new JdbcTemplate(dataSource);
@@ -48,7 +47,7 @@ public class EventManagerImpl implements EventManager {
                 .usingGeneratedKeyColumns("id");
     }
 
-    private static final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
+    private final ParameterizedRowMapper<Event> EVENT_MAPPER = new ParameterizedRowMapper<Event>() {
         @Override
         public Event mapRow(ResultSet rs, int i) throws SQLException {
             Event event = new Event();
@@ -134,15 +133,6 @@ public class EventManagerImpl implements EventManager {
         log.debug("selectSharedEvents()");
         return jdbc.query("SELECT * FROM events WHERE shared=1",
                            EVENT_MAPPER);
-    }
-
-    private synchronized void initManagers(ApplicationContext springCtx) {
-        if(userManager == null) {
-            userManager = (UserManager) springCtx.getBean("userManager");
-        }
-        if(calendarManager == null) {
-            calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
-        }
     }
 
     private void eventValidation(Event event) {
