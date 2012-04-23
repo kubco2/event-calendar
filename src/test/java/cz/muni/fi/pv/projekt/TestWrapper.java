@@ -88,9 +88,9 @@ public class TestWrapper {
 
     private static void cleanDB() {
         logger.info("... Cleaning the DataBase ...");
-        jdbc.execute(dropCal);
-        jdbc.execute(dropEvt);
-        jdbc.execute(dropUsr);
+        try{jdbc.execute(dropCal);}catch(Exception e){logger.warn("Table calendar did not exist, nothing to drop.");}
+        try{jdbc.execute(dropEvt);}catch(Exception e){logger.warn("Table events did not exist, nothing to drop.");}
+        try{jdbc.execute(dropUsr);}catch(Exception e){logger.warn("Table users did not exist, nothing to drop.");}
     }
     
     private static  void createTables() {
