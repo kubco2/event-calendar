@@ -1,4 +1,4 @@
-package cz.muni.fi.pv.projekt.GUI;
+package cz.muni.fi.pv.projekt.gui;
 
 import cz.muni.fi.pv.projekt.*;
 import org.springframework.context.ApplicationContext;
