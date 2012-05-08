@@ -53,7 +53,10 @@ public class Login extends JFrame {
                 // nothing yet, to be implemented
                 // try to log in, show a message in case of failure
                 try {
-                    throw new Exception("TEST - NOT IMPLEMENTED");
+                    // TODO login into the app
+                    
+                    setVisible(false);
+                    new CalendarMainView().setVisible(true);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
                     ex.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
