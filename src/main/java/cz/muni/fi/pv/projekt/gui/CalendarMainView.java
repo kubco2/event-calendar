@@ -1,30 +1,14 @@
 package cz.muni.fi.pv.projekt.gui;
 
-<<<<<<< Updated upstream
 import cz.muni.fi.pv.projekt.User;
-import java.awt.Component;
-import java.awt.EventQueue;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-=======
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
->>>>>>> Stashed changes
 
 /**
  *
@@ -32,11 +16,8 @@ import javax.swing.JTabbedPane;
  */
 public class CalendarMainView extends JFrame {
 
-<<<<<<< Updated upstream
     User currentUser = null;
 
-=======
->>>>>>> Stashed changes
     // JPanels to be used in the main tabbed pane
     // all should be filled out in the respective classes
     private ProfileManagement profileManagement;
@@ -47,16 +28,15 @@ public class CalendarMainView extends JFrame {
     private JTabbedPane mainPanel;
 
     /* Apart from the above, we could do a menu with buttons/items/options
-     * that would do the same as clicking the tabs on the tabbed pane mainPanel.
-     * In the menu, there could also be some New event and Quit options,
-     * perhaps even shortcuts to deleting user or other some such.
-     */
+* that would do the same as clicking the tabs on the tabbed pane mainPanel.
+* In the menu, there could also be some New event and Quit options,
+* perhaps even shortcuts to deleting user or other some such.
+*/
 
     public CalendarMainView() {
         init();
     }
 
-<<<<<<< Updated upstream
     public CalendarMainView(User user) {
         currentUser = user;
         init();
@@ -125,8 +105,8 @@ public class CalendarMainView extends JFrame {
                 try {
                     throw new Exception("TEST - NOT IMPLEMENTED");
                     // but we already know we will need to show the login screen
-//                    setVisible(false);
-//                    new Login().setVisible(true);
+// setVisible(false);
+// new Login().setVisible(true);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not quit the application, "
                             + "exception caught: \n" + ex.getMessage(),
@@ -169,10 +149,6 @@ public class CalendarMainView extends JFrame {
         add(rootPanel);
 
         pack();
-=======
-    private void init() {
-
->>>>>>> Stashed changes
     }
 
     public static void main(String[] args) {
