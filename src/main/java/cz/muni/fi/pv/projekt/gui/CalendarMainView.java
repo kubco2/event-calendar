@@ -1,5 +1,6 @@
 package cz.muni.fi.pv.projekt.gui;
 
+<<<<<<< Updated upstream
 import cz.muni.fi.pv.projekt.User;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -19,6 +20,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+=======
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+>>>>>>> Stashed changes
 
 /**
  *
@@ -26,8 +32,11 @@ import javax.swing.border.EmptyBorder;
  */
 public class CalendarMainView extends JFrame {
 
+<<<<<<< Updated upstream
     User currentUser = null;
 
+=======
+>>>>>>> Stashed changes
     // JPanels to be used in the main tabbed pane
     // all should be filled out in the respective classes
     private ProfileManagement profileManagement;
@@ -47,6 +56,7 @@ public class CalendarMainView extends JFrame {
         init();
     }
 
+<<<<<<< Updated upstream
     public CalendarMainView(User user) {
         currentUser = user;
         init();
@@ -159,6 +169,10 @@ public class CalendarMainView extends JFrame {
         add(rootPanel);
 
         pack();
+=======
+    private void init() {
+
+>>>>>>> Stashed changes
     }
 
     public static void main(String[] args) {
