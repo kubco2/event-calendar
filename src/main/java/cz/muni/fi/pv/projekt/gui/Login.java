@@ -21,6 +21,10 @@ import javax.swing.border.EmptyBorder;
  */
 public class Login extends JFrame {
 
+    public Login() {
+        init();
+    }
+
     private void init() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Calendar - Login / Registration");
@@ -116,9 +120,7 @@ public class Login extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Login login = new Login();
-                login.init();
-                login.setVisible(true);
+                new Login().setVisible(true);
             }
         });
     }
