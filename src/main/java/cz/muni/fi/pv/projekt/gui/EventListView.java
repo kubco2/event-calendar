@@ -43,16 +43,17 @@ public class EventListView extends JFrame {
     private void initContent() {
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content,BoxLayout.PAGE_AXIS));
+        content.add(new JLabel(day.toString()));
         if(!day.hasEvents()) {
             JLabel noEvents = new JLabel("No events");
-            Box box = new Box(BoxLayout.LINE_AXIS);
-            box.add(noEvents);
-            content.add(box);
+            //Box box = new Box(BoxLayout.LINE_AXIS);
+            //box.add(noEvents);
+            content.add(noEvents);
         } else {
             for(Event event : day.getEvents()) {
-                Box box = new Box(BoxLayout.LINE_AXIS);
-                box.add(new EventField(event));
-                content.add(box);
+                //Box box = new Box(BoxLayout.LINE_AXIS);
+                //box.add(new EventField(event));
+                content.add(new EventField(event));
             }
         }
 
