@@ -1,6 +1,8 @@
 package cz.muni.fi.pv.projekt.gui;
 
-import cz.muni.fi.pv.projekt.User;
+import cz.muni.fi.pv.projekt.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,7 +18,14 @@ import java.awt.event.KeyEvent;
  */
 public class CalendarMainView extends JFrame {
 
-    User currentUser = null;
+    static User currentUser = null;
+
+    static {
+        ///feed user with test user
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        UserManager userManager = (UserManager) springCtx.getBean("userManager");
+        currentUser = userManager.selectUserById(1L);
+    }
 
     // JPanels to be used in the main tabbed pane
     // all should be filled out in the respective classes
