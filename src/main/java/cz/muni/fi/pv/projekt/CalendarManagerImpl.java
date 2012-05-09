@@ -52,8 +52,8 @@ public class CalendarManagerImpl implements CalendarManager {
             event.setId(rs.getLong("id"));
             event.setName(rs.getString("name"));
             event.setDescription(rs.getString("description"));
-            event.setFrom(rs.getDate("timeFrom"));
-            event.setTo(rs.getDate("timeTo"));
+            event.setFrom(rs.getTimestamp("timeFrom"));
+            event.setTo(rs.getTimestamp("timeTo"));
             User owner = userManager.selectUserById(rs.getLong("owner"));
             event.setOwner(owner);
             event.setPlace(rs.getString("place"));

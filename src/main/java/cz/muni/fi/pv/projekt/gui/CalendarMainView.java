@@ -1,6 +1,9 @@
 package cz.muni.fi.pv.projekt.gui;
 
-import cz.muni.fi.pv.projekt.*;
+import cz.muni.fi.pv.projekt.CalendarManager;
+import cz.muni.fi.pv.projekt.Event;
+import cz.muni.fi.pv.projekt.User;
+import cz.muni.fi.pv.projekt.UserManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -11,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 /**
  *
@@ -19,12 +23,15 @@ import java.awt.event.KeyEvent;
 public class CalendarMainView extends JFrame {
 
     static User currentUser = null;
-
+    static List<Event> events = null;
     static {
         ///feed user with test user
         ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
         UserManager userManager = (UserManager) springCtx.getBean("userManager");
         currentUser = userManager.selectUserById(1L);
+        //feed event list
+        CalendarManager calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
+        events = calendarManager.getEventsForUser(CalendarMainView.currentUser);
     }
 
     // JPanels to be used in the main tabbed pane

@@ -69,7 +69,7 @@ public class EventListView extends JFrame {
     private ActionListener actionShowEvent = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            EventView newEvent = new EventViewNew(new User());
+            EventView newEvent = new EventViewNew(CalendarMainView.currentUser);
             newEvent.setVisible(true);
         }
     };

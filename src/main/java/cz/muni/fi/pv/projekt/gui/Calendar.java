@@ -1,9 +1,6 @@
 package cz.muni.fi.pv.projekt.gui;
 
 import cz.muni.fi.pv.projekt.Event;
-import cz.muni.fi.pv.projekt.EventManager;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -96,7 +93,7 @@ public class Calendar extends JPanel{
         recreate();
 
         monthName.setText(getMonthYear());
-        DateFormatSymbols dfs = new DateFormatSymbols();
+        DateFormatSymbols dfs = new DateFormatSymbols(locale);
         String weekdays[] = dfs.getWeekdays();
 
         Field mo = Field.getHeadField(weekdays[2]);
@@ -149,12 +146,7 @@ public class Calendar extends JPanel{
                 throw new IllegalArgumentException("bad generated day");
             }
             this.date = date;
-
-            ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
-            EventManager eventManager = (EventManager) springCtx.getBean("eventManager");
-            Event e = eventManager.selectEventById(1L);
-            events.add(e);
-
+            findEvents();
         }
         public boolean isToday() {
             return date.equals(now.getTime());
@@ -164,6 +156,27 @@ public class Calendar extends JPanel{
         }
         public List<Event> getEvents() {
             return events;
+        }
+        private void findEvents() {
+
+            long startDay = date.getTime();
+            long endDay = date.getTime()+3600*24*1000-1;
+            List<Event> events = CalendarMainView.events;
+            for(Event event : events) {
+                long startEvent = event.getFrom().getTime();
+                long endEvent = event.getTo().getTime();
+
+                if(
+                        (startEvent <= startDay && endEvent >= startDay)
+                        ||
+                        (startEvent <= endDay && endEvent >= endDay)
+                        ||
+                        (startEvent >= startDay && endEvent <= endDay)
+                        ) {
+                    this.events.add(event);
+                }
+
+            }
         }
 
         @Override
