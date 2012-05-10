@@ -2,8 +2,6 @@ package cz.muni.fi.pv.projekt.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 /**
  *
@@ -17,9 +15,7 @@ public class PersonalCalendar extends JPanel {
     }
 
     private void init() {
-        GregorianCalendar gc = new GregorianCalendar();
-        //Calendar calendar = new Calendar(gc.get(java.util.Calendar.MONTH),gc.get(java.util.Calendar.YEAR));
-        Calendar calendar = new Calendar(new Locale("sk","SK"));
+        Calendar calendar = new Calendar().setEvents(CalendarMainView.events);
         add(calendar);
     }
 

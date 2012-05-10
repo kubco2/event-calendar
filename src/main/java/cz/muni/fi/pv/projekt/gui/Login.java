@@ -1,19 +1,19 @@
 package cz.muni.fi.pv.projekt.gui;
 
-import java.awt.EventQueue;
-import java.awt.GridLayout;
-import java.awt.Panel;
+import cz.muni.fi.pv.projekt.User;
+import cz.muni.fi.pv.projekt.UserManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  *
@@ -25,8 +25,18 @@ public class Login extends JFrame {
         init();
     }
 
+    private JTextField loginNickField;
+    private JPasswordField loginPasswordField;
+    private JButton login;
+    private JTextField regNickField;
+    private JTextField regNameField;
+    private JPasswordField regPasswordField;
+    private JButton register;
+    JComboBox<Locale> localeSelect;
+    private JProgressBar progressBar;
+
     private void init() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calendar - Login / Registration");
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false);
@@ -42,27 +52,18 @@ public class Login extends JFrame {
 
         JLabel loginNickLabel = new JLabel("Nick");
         JLabel loginPasswordLabel = new JLabel("Password");
-        JTextField loginNickField = new JTextField("nick");
-        JPasswordField loginPasswordField = new JPasswordField("password");
-        JButton login = new JButton("Login");
+        loginNickField = new JTextField("nick");
+        loginPasswordField = new JPasswordField("password");
+        login = new JButton("Login");
 
         ActionListener loginListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
-                // try to log in, show a message in case of failure
-                try {
-                    // TODO login into the app
-                    
-                    setVisible(false);
-                    new CalendarMainView().setVisible(true);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
-                    ex.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                }
-                return;
-            };
+                ((JButton)e.getSource()).setEnabled(false);
+                LoginProcess lp = new LoginProcess();
+                lp.addPropertyChangeListener(progressListener);
+                lp.execute();
+            }
         };
         login.addActionListener(loginListener);
 
@@ -79,25 +80,19 @@ public class Login extends JFrame {
         JLabel regNickLabel = new JLabel("Nick");
         JLabel regNameLabel = new JLabel("Name");
         JLabel regPasswordLabel = new JLabel("Password");
-        JTextField regNickField = new JTextField("nick");
-        JTextField regNameField = new JTextField("name");
-        JPasswordField regPasswordField = new JPasswordField("password");
-        JButton register = new JButton("Register");
+        regNickField = new JTextField("nick");
+        regNameField = new JTextField("name");
+        regPasswordField = new JPasswordField("password");
+        register = new JButton("Register");
 
         ActionListener regListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
-                // try to register, show a message in case of failure
-                try {
-                    throw new Exception("TEST - NOT IMPLEMENTED");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
-                    ex.getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                }
-                return;
-            };
+                ((JButton)e.getSource()).setEnabled(false);
+                RegisterProcess rp = new RegisterProcess();
+                rp.addPropertyChangeListener(progressListener);
+                rp.execute();
+            }
         };
         register.addActionListener(regListener);
 
@@ -114,9 +109,108 @@ public class Login extends JFrame {
         splitPane.setRightComponent(rightPanel);
 
         add(splitPane);
-
+        localeSelect = new JComboBox<Locale>();
+        localeSelect.addItem(new Locale("sk","SK"));
+        localeSelect.addItem(new Locale("cs","CZ"));
+        localeSelect.addItem(new Locale("en","GB"));
+        localeSelect.setSelectedItem(Locale.getDefault());
+        localeSelect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Locale.setDefault((Locale)localeSelect.getSelectedItem());
+            }
+        });
+        progressBar = new JProgressBar(0,0);
+        add(localeSelect,BorderLayout.NORTH);
+        add(progressBar,BorderLayout.SOUTH);
         pack();
     }
+
+    private class LoginProcess extends SwingWorker<User,Integer> {
+        @Override
+        protected User doInBackground() throws Exception {
+            setProgress(1);
+            String nick = loginNickField.getText();
+            char[] pass = loginPasswordField.getPassword();
+
+            if(nick.length() ==0 || pass.length ==0) {
+                throw new IllegalArgumentException("All fields must be filled");
+            }
+
+            ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+            UserManager userManager = (UserManager) springCtx.getBean("userManager");
+            User user = userManager.selectUserByNick(nick);
+            if(user==null || !Arrays.equals(user.getPassword().toCharArray(),pass)) {
+                throw new IllegalAccessException("Bad nick or password!");
+            }
+            return user;
+        }
+
+        protected void done() {
+            try {
+                setProgress(2);
+                User user = get();
+                setVisible(false);
+                new CalendarMainView(user).setVisible(true);
+            } catch(Exception e) {
+                JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
+                        e.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
+            }
+            login.setEnabled(true);
+        }
+    }
+
+    private class RegisterProcess extends SwingWorker<User,Integer> {
+        @Override
+        protected User doInBackground() throws Exception {
+            setProgress(1);
+            User user = new User();
+            user.setName(regNameField.getText());
+            user.setNick(regNickField.getText());
+            user.setPassword(String.valueOf(regPasswordField.getPassword()));
+
+            if(user.getName().length() ==0 || user.getNick().length() ==0 || user.getPassword().length() ==0) {
+                throw new IllegalArgumentException("All fields must be filled");
+            }
+
+            ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+            UserManager userManager = (UserManager) springCtx.getBean("userManager");
+            if(userManager.selectUserByNick(user.getNick()) != null) {
+                throw new IllegalArgumentException("Nick is used!");
+            }
+            userManager.createUser(user);
+            if(user.getId()==null) {
+                throw new IllegalArgumentException("User cannot be created!");
+            }
+            return user;
+        }
+
+        protected void done() {
+            try {
+                setProgress(2);
+                User user = get();
+                setVisible(false);
+                new CalendarMainView(user).setVisible(true);
+            } catch(Exception e) {
+                JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
+                        e.getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
+            }
+            register.setEnabled(true);
+        }
+    }
+
+    private PropertyChangeListener progressListener = new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.out.println(evt.getPropertyName());
+            if (evt.getPropertyName().equals("progress")) {
+                if(evt.getNewValue().equals(1)) {
+                    progressBar.setIndeterminate(true);
+                } else {
+                    progressBar.setIndeterminate(false);
+                }
+            }
+        }
+    };
 
     public static void main(String[] args) {
 

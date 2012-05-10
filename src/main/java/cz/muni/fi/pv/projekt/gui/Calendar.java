@@ -23,79 +23,85 @@ public class Calendar extends JPanel{
     JPanel content;
     JLabel monthName;
 
-    private java.util.Calendar now;
+    private java.util.Date now;
     private java.util.Calendar show;
 
     private Locale locale;
     private SimpleDateFormat fullDateFormat;
     private SimpleDateFormat monthYearDateFormat;
 
-    public Calendar(Locale locale){
-        this.locale=(locale==null)?Locale.ENGLISH:locale;
-        java.util.Calendar today = java.util.Calendar.getInstance(locale);
+    private List<Event> events;
+
+    public Calendar() {
+        this(null);
+    }
+
+    public Calendar(Locale locale) {
+        this.locale=(locale==null)?Locale.getDefault():locale;
+
+        java.util.Calendar today = java.util.Calendar.getInstance(this.locale);
         today.set(java.util.Calendar.HOUR,0);
         today.set(java.util.Calendar.MINUTE,0);
         today.set(java.util.Calendar.SECOND,0);
         today.set(java.util.Calendar.MILLISECOND,0);
         show = today;
-        now = (java.util.Calendar)show.clone();
-        fullDateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy",locale);
-        monthYearDateFormat = new SimpleDateFormat("MMMM, yyyy",locale);
-        setLayout(new BorderLayout());
+        now  = today.getTime();
+        fullDateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy",this.locale);
+        monthYearDateFormat = new SimpleDateFormat("MMMM, yyyy",this.locale);
+        setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+
         initTop();
         initContent();
     }
 
+    public Calendar setEvents(List<Event> events) {
+        this.events = events;
+        paintCalendar();
+        return this;
+    }
+
     private void initTop() {
-        JPanel top = new JPanel();
-        JButton next = new JButton("<--");
-        next.addActionListener(new ActionListener() {
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton previous = new JButton("<--");
+        previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 prev();
             }
         });
-        JButton previous = new JButton("-->");
-        previous.addActionListener(new ActionListener() {
+        JButton next = new JButton("-->");
+        next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 next();
             }
         });
         monthName = new JLabel();
+        top.add(previous);
         top.add(next);
         top.add(monthName);
-        top.add(previous);
 
-        add(top,BorderLayout.NORTH);
-    }
-
-    private String getMonthYear() {
-        return monthYearDateFormat.format(show.getTime());
+        Box box = new Box(BoxLayout.LINE_AXIS);
+        box.add(top);
+        box.setMaximumSize(new Dimension(Integer.MAX_VALUE,30));
+        add(box);
     }
 
     private void initContent() {
         content = new JPanel();
         content.setLayout(new GridLayout(0, 7));
-
+        initHead();
         paintCalendar();
-
-        add(content,BorderLayout.CENTER);
+        Box box = new Box(BoxLayout.LINE_AXIS);
+        box.add(content);
+        add(box);
     }
 
-    public void recreate() {
-        content.removeAll();
-        content.revalidate();
-        content.repaint();
-    }
-
-    private void paintCalendar() {
-        recreate();
-
-        monthName.setText(getMonthYear());
+    private void initHead() {
+        JPanel days = new JPanel();
+        days.setLayout(new GridLayout(0, 7));
         DateFormatSymbols dfs = new DateFormatSymbols(locale);
         String weekdays[] = dfs.getWeekdays();
-
         Field mo = Field.getHeadField(weekdays[2]);
         Field tu = Field.getHeadField(weekdays[3]);
         Field we = Field.getHeadField(weekdays[4]);
@@ -104,13 +110,34 @@ public class Calendar extends JPanel{
         Field sa = Field.getHeadField(weekdays[7]);
         Field su = Field.getHeadField(weekdays[1]);
 
-        content.add(mo);
-        content.add(tu);
-        content.add(we);
-        content.add(th);
-        content.add(fr);
-        content.add(sa);
-        content.add(su);
+        days.add(mo);
+        days.add(tu);
+        days.add(we);
+        days.add(th);
+        days.add(fr);
+        days.add(sa);
+        days.add(su);
+
+        Box box = new Box(BoxLayout.LINE_AXIS);
+        box.add(days);
+        box.setMaximumSize(new Dimension(Integer.MAX_VALUE,3000));
+        add(box);
+    }
+
+    public void recreate() {
+        content.removeAll();
+        content.revalidate();
+        content.repaint();
+    }
+
+    private String getMonthYear() {
+        return monthYearDateFormat.format(show.getTime());
+    }
+
+    private void paintCalendar() {
+        recreate();
+
+        monthName.setText(getMonthYear());
 
         Month month = new Month(show);
         paintFields(month);
@@ -128,19 +155,30 @@ public class Calendar extends JPanel{
 
     public void next() {
         show.add(java.util.Calendar.MONTH, 1);
-        paintCalendar();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                paintCalendar();
+            }
+        });
     }
     public void prev() {
         show.add(java.util.Calendar.MONTH, -1);
-        paintCalendar();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                paintCalendar();
+            }
+        });
     }
+
 
     /**
      * Day data structure for Field cell of Month in calendar view
      */
     class Day {
         private Date date;
-        private List<Event> events = new ArrayList<Event>();
+        private List<Event> dayEvents = new ArrayList<Event>();
         public Day(Date date) {
             if(date == null) {
                 throw new IllegalArgumentException("bad generated day");
@@ -148,20 +186,26 @@ public class Calendar extends JPanel{
             this.date = date;
             findEvents();
         }
-        public boolean isToday() {
-            return date.equals(now.getTime());
-        }
-        public boolean hasEvents() {
-            return events.size()>0;
-        }
-        public List<Event> getEvents() {
-            return events;
-        }
-        private void findEvents() {
 
+        public boolean isToday() {
+            return date.equals(now);
+        }
+
+        public boolean hasEvents() {
+            return dayEvents.size()>0;
+        }
+
+        public List<Event> getEvents() {
+            return dayEvents;
+        }
+
+        private void findEvents() {
+            if(events == null) {
+                return;
+            }
             long startDay = date.getTime();
             long endDay = date.getTime()+3600*24*1000-1;
-            List<Event> events = CalendarMainView.events;
+
             for(Event event : events) {
                 long startEvent = event.getFrom().getTime();
                 long endEvent = event.getTo().getTime();
@@ -173,7 +217,7 @@ public class Calendar extends JPanel{
                         ||
                         (startEvent >= startDay && endEvent <= endDay)
                         ) {
-                    this.events.add(event);
+                    dayEvents.add(event);
                 }
 
             }
@@ -243,17 +287,17 @@ class Field extends JLabel {
         return field;
     }
 
-    public Field(String text) {
+    private Field(String text) {
         super(text);
         setOpaque(true);
     }
 
-    public void setHeadLook() {
+    private void setHeadLook() {
         setHorizontalAlignment(SwingConstants.CENTER);
         setBackground(Color.LIGHT_GRAY);
     }
 
-    public void setDayLook() {
+    private void setDayLook() {
         setVerticalAlignment(SwingConstants.TOP);
         setBorder(BorderFactory.createBevelBorder(1));
         if(day.hasEvents()) {
@@ -265,7 +309,7 @@ class Field extends JLabel {
         addMouseListener(actionMouse);
     }
 
-    public void setDay(Calendar.Day day) {
+    private void setDay(Calendar.Day day) {
         this.day=day;
     }
 

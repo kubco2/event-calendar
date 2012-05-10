@@ -1,9 +1,7 @@
 package cz.muni.fi.pv.projekt.gui;
 
-import cz.muni.fi.pv.projekt.CalendarManager;
+import cz.muni.fi.pv.projekt.*;
 import cz.muni.fi.pv.projekt.Event;
-import cz.muni.fi.pv.projekt.User;
-import cz.muni.fi.pv.projekt.UserManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,6 +22,7 @@ public class CalendarMainView extends JFrame {
 
     static User currentUser = null;
     static List<Event> events = null;
+    static List<Event> sharedEvents = null;
     static {
         ///feed user with test user
         ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
@@ -31,7 +30,9 @@ public class CalendarMainView extends JFrame {
         currentUser = userManager.selectUserById(1L);
         //feed event list
         CalendarManager calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
+        EventManager eventManager = (EventManager) springCtx.getBean("eventManager");
         events = calendarManager.getEventsForUser(CalendarMainView.currentUser);
+        sharedEvents = eventManager.selectSharedEvents();
     }
 
     // JPanels to be used in the main tabbed pane
@@ -59,7 +60,7 @@ public class CalendarMainView extends JFrame {
     }
 
     private void init() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calendar");
 
         // root panel
@@ -147,7 +148,7 @@ public class CalendarMainView extends JFrame {
         personalCal = new PersonalCalendar();
 
         mainPanel.addTab("Personal Calendar", personalCal);
-        mainPanel.addTab("Shared Calendar", sharedCal);
+        mainPanel.addTab("Public Calendar", sharedCal);
         mainPanel.addTab("Profile Management", profileManagement);
 
         // other various stuff. like username label.
