@@ -10,11 +10,11 @@ import java.awt.*;
 public class PersonalCalendar extends JPanel {
 
     public PersonalCalendar() {
-        setLayout(new BorderLayout());
         init();
     }
 
     private void init() {
+        setLayout(new BorderLayout());
         Calendar calendar = new Calendar().setEvents(CalendarMainView.events);
         add(calendar);
     }

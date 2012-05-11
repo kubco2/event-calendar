@@ -10,11 +10,11 @@ import java.awt.*;
 public class SharedCalendar extends JPanel {
 
     public SharedCalendar() {
-        setLayout(new BorderLayout());
         init();
     }
 
     private void init() {
+        setLayout(new BorderLayout());
         Calendar calendar = new Calendar().setEvents(CalendarMainView.sharedEvents);
         add(calendar);
     }

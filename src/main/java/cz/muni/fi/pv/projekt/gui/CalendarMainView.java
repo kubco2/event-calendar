@@ -84,6 +84,7 @@ public class CalendarMainView extends JFrame {
                 // nothing yet, to be implemented
                 // try to create a new event, show a message in case of failure
                 try {
+                    new EventView2(currentUser, null).setVisible(true);
                     throw new Exception("TEST - NOT IMPLEMENTED");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not open the event "
@@ -96,10 +97,8 @@ public class CalendarMainView extends JFrame {
         newEventItem.addActionListener(newEventListener);
 
         ActionListener quitListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
                 // try to quit, show a message in case of failure
                 try {
                     System.exit(0);
@@ -114,10 +113,8 @@ public class CalendarMainView extends JFrame {
         quitItem.addActionListener(quitListener);
 
         ActionListener logoutListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
                 // try to log out, show a message in case of failure
                 try {
                     setVisible(false);

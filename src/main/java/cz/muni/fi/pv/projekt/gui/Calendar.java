@@ -18,7 +18,7 @@ import java.util.Locale;
  * Date: 08/05/12
  * Time: 19:06
  */
-public class Calendar extends JPanel{
+public class Calendar extends JPanel {
 
     JPanel content;
     JLabel monthName;
@@ -39,13 +39,12 @@ public class Calendar extends JPanel{
     public Calendar(Locale locale) {
         this.locale=(locale==null)?Locale.getDefault():locale;
 
-        java.util.Calendar today = java.util.Calendar.getInstance(this.locale);
-        today.set(java.util.Calendar.HOUR,0);
-        today.set(java.util.Calendar.MINUTE,0);
-        today.set(java.util.Calendar.SECOND,0);
-        today.set(java.util.Calendar.MILLISECOND,0);
-        show = today;
-        now  = today.getTime();
+        show = java.util.Calendar.getInstance(this.locale);
+        show.set(java.util.Calendar.HOUR,0);
+        show.set(java.util.Calendar.MINUTE,0);
+        show.set(java.util.Calendar.SECOND,0);
+        show.set(java.util.Calendar.MILLISECOND,0);
+        now  = show.getTime();
         fullDateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy",this.locale);
         monthYearDateFormat = new SimpleDateFormat("MMMM, yyyy",this.locale);
         setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
@@ -62,14 +61,14 @@ public class Calendar extends JPanel{
 
     private void initTop() {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton previous = new JButton("<--");
+        JButton previous = new JButton(new ImageIcon("src/main/Resources/icons/left_16.png"));
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 prev();
             }
         });
-        JButton next = new JButton("-->");
+        JButton next = new JButton(new ImageIcon("src/main/Resources/icons/right_16.png"));
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -137,7 +136,8 @@ public class Calendar extends JPanel{
     private void paintCalendar() {
         recreate();
 
-        monthName.setText(getMonthYear());
+        String mnString = getMonthYear();
+        monthName.setText(mnString.substring(0, 1).toUpperCase()+mnString.substring(1));
 
         Month month = new Month(show);
         paintFields(month);
@@ -316,7 +316,7 @@ class Field extends JLabel {
     private MouseListener actionMouse = new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-            new EventListView(day);
+            new EventListView(day).setVisible(true);
         }
     };
 }
