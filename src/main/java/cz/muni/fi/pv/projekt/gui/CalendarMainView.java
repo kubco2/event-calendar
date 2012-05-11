@@ -85,7 +85,7 @@ public class CalendarMainView extends JFrame {
                 // try to create a new event, show a message in case of failure
                 try {
                     new EventView2(currentUser, null).setVisible(true);
-                    throw new Exception("TEST - NOT IMPLEMENTED");
+//                    throw new Exception("TEST - NOT IMPLEMENTED");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not open the event "
                             + "creation dialogue, exception caught: \n" + ex.getMessage(),
