@@ -32,7 +32,7 @@ public class Login extends JFrame {
     private JTextField regNameField;
     private JPasswordField regPasswordField;
     private JButton register;
-    JComboBox<Locale> localeSelect;
+    JComboBox localeSelect;
     private JProgressBar progressBar;
 
     private void init() {
@@ -109,10 +109,8 @@ public class Login extends JFrame {
         splitPane.setRightComponent(rightPanel);
 
         add(splitPane);
-        localeSelect = new JComboBox<Locale>();
-        localeSelect.addItem(new Locale("sk","SK"));
-        localeSelect.addItem(new Locale("cs","CZ"));
-        localeSelect.addItem(new Locale("en","GB"));
+        Locale[] locale = {new Locale("sk","SK"),new Locale("cs","CZ"),new Locale("en","GB")};
+        localeSelect = new JComboBox(locale);
         localeSelect.setSelectedItem(Locale.getDefault());
         localeSelect.addActionListener(new ActionListener() {
             @Override
