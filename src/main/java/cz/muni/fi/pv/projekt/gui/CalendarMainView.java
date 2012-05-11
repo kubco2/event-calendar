@@ -45,10 +45,10 @@ public class CalendarMainView extends JFrame {
     private JTabbedPane mainPanel;
 
     /* Apart from the above, we could do a menu with buttons/items/options
-* that would do the same as clicking the tabs on the tabbed pane mainPanel.
-* In the menu, there could also be some New event and Quit options,
-* perhaps even shortcuts to deleting user or other some such.
-*/
+     * that would do the same as clicking the tabs on the tabbed pane mainPanel.
+     * In the menu, there could also be some New event and Quit options,
+     * perhaps even shortcuts to deleting user or other some such.
+     */
 
     public CalendarMainView() {
         init();
@@ -120,10 +120,9 @@ public class CalendarMainView extends JFrame {
                 // nothing yet, to be implemented
                 // try to log out, show a message in case of failure
                 try {
-                    throw new Exception("TEST - NOT IMPLEMENTED");
-                    // but we already know we will need to show the login screen
-// setVisible(false);
-// new Login().setVisible(true);
+                    setVisible(false);
+                    currentUser = null;
+                    Login.getInstance().setVisible(true);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not quit the application, "
                             + "exception caught: \n" + ex.getMessage(),

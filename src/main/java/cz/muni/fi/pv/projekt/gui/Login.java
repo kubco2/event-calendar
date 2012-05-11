@@ -21,10 +21,6 @@ import java.util.Locale;
  */
 public class Login extends JFrame {
 
-    public Login() {
-        init();
-    }
-
     private JTextField loginNickField;
     private JPasswordField loginPasswordField;
     private JButton login;
@@ -34,6 +30,17 @@ public class Login extends JFrame {
     private JButton register;
     JComboBox localeSelect;
     private JProgressBar progressBar;
+    
+    private static Login instance;
+
+    private Login() {
+        init();
+    }
+
+    public static Login getInstance() {
+        if (instance==null) instance = new Login();
+        return instance;
+    }
 
     private void init() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -178,7 +185,7 @@ public class Login extends JFrame {
             }
             userManager.createUser(user);
             if(user.getId()==null) {
-                throw new IllegalArgumentException("User cannot be created!");
+                throw new IllegalArgumentException("User could not be created!");
             }
             return user;
         }
