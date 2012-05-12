@@ -1,9 +1,9 @@
 package cz.muni.fi.pv.projekt.gui;
 
+import cz.muni.fi.pv.projekt.CalendarManager;
 import cz.muni.fi.pv.projekt.Event;
+import cz.muni.fi.pv.projekt.EventManager;
 import cz.muni.fi.pv.projekt.User;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -11,22 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SpinnerDateModel;
-import javax.swing.border.CompoundBorder;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -46,11 +34,19 @@ public class EventView2 extends JFrame {
     private Boolean shared = false;
     private String joinLeaveSave = "Save";
 
+    JTextField ownerField;
+    JTextField nameField;
+    JTextField placeField;
+    JSpinner fromSpinner;
+    JSpinner toSpinner;
+    JTextArea descArea;
+    JCheckBox shareBox;
+
     private boolean editable = true;
 
-    public EventView2() {
-        init();
-    }
+//    public EventView2() {
+//        init();
+//    }
 
     public EventView2(User user, Event event) {
         currentUser = user;
@@ -72,7 +68,7 @@ public class EventView2 extends JFrame {
             } else {
                 joinLeaveSave = "Join";
             }
-        }
+        } else event = new Event();
         init();
     }
 
@@ -92,40 +88,40 @@ public class EventView2 extends JFrame {
         // owner
         JLabel ownerLabel = new JLabel("Event owner");
         ownerLabel.setFont(ownerLabel.getFont().deriveFont(Font.ITALIC));
-        JTextField ownerField = new JTextField(owner);
+        ownerField = new JTextField(owner);
         ownerField.setFont(ownerField.getFont().deriveFont(Font.ITALIC));
         ownerField.setEnabled(false);
 
         // name
         JLabel nameLabel = new JLabel("Event name");
-        JTextField nameField = new JTextField(name);
+        nameField = new JTextField(name);
         nameField.setEnabled(editable);
 
         // place
         JLabel placeLabel = new JLabel("Location");
-        JTextField placeField = new JTextField(place);
+        placeField = new JTextField(place);
         placeField.setEnabled(editable);
 
         // from
         JLabel fromLabel = new JLabel("Event starts");
-        JSpinner fromSpinner = new JSpinner(new SpinnerDateModel(from, null, null, Calendar.DAY_OF_MONTH));
+        fromSpinner = new JSpinner(new SpinnerDateModel(from, null, null, Calendar.DAY_OF_MONTH));
         fromSpinner.setEnabled(editable);
 
         // to
         JLabel toLabel = new JLabel("Event ends");
-        JSpinner toSpinner = new JSpinner(new SpinnerDateModel(to, null, null, Calendar.DAY_OF_MONTH));
+        toSpinner = new JSpinner(new SpinnerDateModel(to, null, null, Calendar.DAY_OF_MONTH));
         toSpinner.setEnabled(editable);
 
         // description
         JLabel descLabel = new JLabel("Description");
-        JTextArea descArea = new JTextArea(desc);
+        descArea = new JTextArea(desc);
         descArea.setRows(5);
         descArea.setEnabled(editable);
         JScrollPane descScroll = new JScrollPane(descArea);
 
         // shared
         JLabel shareLabel = new JLabel("Will others see this event?");
-        JCheckBox shareBox = new JCheckBox("Is shared event.", shared);
+        shareBox = new JCheckBox("Is shared event.", shared);
         shareBox.setEnabled(editable);
 
         // buttons
@@ -136,10 +132,9 @@ public class EventView2 extends JFrame {
             // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
                 // try to delete the event, show a message in case of failure
                 try {
-                    throw new Exception("TEST - NOT IMPLEMENTED");
+                    deleteEvent();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not delete the event, exception caught: \n" +
                     ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
@@ -152,18 +147,20 @@ public class EventView2 extends JFrame {
         JButton saveButton = new JButton(joinLeaveSave);
 
         ActionListener saveListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
                 // try to save the event, show a message in case of failure
                 try {
                     // TODO actions according to the button "state"
-                    if (e.getActionCommand().equals("Save")) {}
-                    else if(e.getActionCommand().equals("Join")) {
-                    ((JButton)e.getSource()).setText("Leave");}
-                    else if (e.getActionCommand().equals("Leave")) {
-                    ((JButton)e.getSource()).setText("Join");}
+                    if (e.getActionCommand().equals("Save")) {
+                        saveEvent();
+                    } else if(e.getActionCommand().equals("Join")) {
+                        joinEvent();
+                        ((JButton)e.getSource()).setText("Leave");
+                    } else if (e.getActionCommand().equals("Leave")) {
+                        leaveEvent();
+                        ((JButton)e.getSource()).setText("Join");
+                    }
                     throw new Exception("TEST - NOT IMPLEMENTED");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not "+e.getActionCommand().toLowerCase()
@@ -207,13 +204,83 @@ public class EventView2 extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new EventView2().setVisible(true);
+                new EventView2(new User(), null).setVisible(true);
             }
         });
     }
 
-    // TODO
     private boolean userJoined() {
-        return false;
+        UserJoinedQuery ujquery = new UserJoinedQuery();
+        ujquery.execute();
+        boolean joined = false;
+        try {
+            joined = ujquery.get().booleanValue();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Failed asserting if user joined the event, "
+                + "exception caught: \n" + e.getMessage(), "Operation failed!",
+                JOptionPane.ERROR_MESSAGE);
+        }
+        return joined;
+    }
+
+    private void saveEvent() {
+        event.setName(nameField.getText());
+        event.setPlace(placeField.getText());
+        event.setFrom((Date)fromSpinner.getValue());
+        event.setTo((Date)toSpinner.getValue());
+        event.setDescription(descArea.getText());
+        event.setShared(shareBox.isSelected());
+        event.setOwner(currentUser);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getEventManager().createEvent(event);
+            }
+        });
+    }
+
+    private void deleteEvent() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getEventManager().deleteEvent(event);
+            }
+        });
+    }
+
+    private void joinEvent() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getCalendarManager().saveUserEvent(currentUser, event);
+            }
+        });
+    }
+
+    private void leaveEvent() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getCalendarManager().deleteUserFromEvent(currentUser, event);
+            }
+        });
+    }
+
+    private EventManager getEventManager() {
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        return (EventManager) springCtx.getBean("eventManager");
+    }
+
+    private CalendarManager getCalendarManager() {
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        return (CalendarManager) springCtx.getBean("calendarManager");
+    }
+
+    private class UserJoinedQuery extends SwingWorker<Boolean,Object> {
+
+        @Override
+        protected Boolean doInBackground() {
+            return getCalendarManager().getUsersForEvent(event).contains(currentUser);
+        }
     }
 }
