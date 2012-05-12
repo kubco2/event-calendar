@@ -164,6 +164,9 @@ public class Login extends JFrame {
                 new CalendarMainView(user).setVisible(true);
                 loginNickField.setText(null);
                 loginPasswordField.setText(null);
+                regNameField.setText(null);
+                regNickField.setText(null);
+                regPasswordField.setText(null);
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
                         e.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
@@ -203,6 +206,8 @@ public class Login extends JFrame {
                 User user = get();
                 setVisible(false);
                 new CalendarMainView(user).setVisible(true);
+                loginNickField.setText(null);
+                loginPasswordField.setText(null);
                 regNameField.setText(null);
                 regNickField.setText(null);
                 regPasswordField.setText(null);
