@@ -1,7 +1,7 @@
 package cz.muni.fi.pv.projekt.gui;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
 
 /**
  *
@@ -15,7 +15,7 @@ public class PersonalCalendar extends JPanel {
 
     private void init() {
         setLayout(new BorderLayout());
-        Calendar calendar = new Calendar().setEvents(CalendarMainView.events);
+        Calendar calendar = Calendar.getCalendar(null, false).setEvents(CalendarMainView.privateEvents);
         add(calendar);
     }
 }

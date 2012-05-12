@@ -14,6 +14,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Locale;
+import javax.swing.plaf.InputMapUIResource;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -170,6 +172,11 @@ public class Login extends JFrame {
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
                         e.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error("Login unsuccessful, exception caught: \n", e);
+            } catch (Error er) {
+                JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
+                        er.getCause().getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error("Login unsuccessful, exception caught: \n", er);
             }
             login.setEnabled(true);
         }
@@ -214,6 +221,11 @@ public class Login extends JFrame {
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
                         e.getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error("Registration unsuccessful, exception caught: \n", e);
+            } catch (Error er) {
+                JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
+                        er.getCause().getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error("Registration unsuccessful, exception caught: \n", er);
             }
             register.setEnabled(true);
         }

@@ -1,5 +1,7 @@
 package cz.muni.fi.pv.projekt.gui;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+
 import cz.muni.fi.pv.projekt.CalendarManager;
 import cz.muni.fi.pv.projekt.Event;
 import cz.muni.fi.pv.projekt.EventManager;
@@ -9,10 +11,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Calendar;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -44,11 +46,8 @@ public class EventView2 extends JFrame {
 
     private boolean editable = true;
 
-//    public EventView2() {
-//        init();
-//    }
-
     public EventView2(User user, Event event) {
+        super();
         currentUser = user;
         owner = user.getName();
         if (event != null) {
@@ -62,13 +61,13 @@ public class EventView2 extends JFrame {
             shared = event.isShared();
             if (event.getOwner() != user) {
                 editable = false;
+                if (userJoined()) {
+                    joinLeaveSave = "Leave";
+                } else {
+                    joinLeaveSave = "Join";
+                }
             }
-            if (userJoined()) {
-                joinLeaveSave = "Leave";
-            } else {
-                joinLeaveSave = "Join";
-            }
-        } else event = new Event();
+        } else this.event = new Event();
         init();
     }
 
@@ -104,12 +103,12 @@ public class EventView2 extends JFrame {
 
         // from
         JLabel fromLabel = new JLabel("Event starts");
-        fromSpinner = new JSpinner(new SpinnerDateModel(from, null, null, Calendar.DAY_OF_MONTH));
+        fromSpinner = new JSpinner(new SpinnerDateModel(from, null, null, DAY_OF_MONTH));
         fromSpinner.setEnabled(editable);
 
         // to
         JLabel toLabel = new JLabel("Event ends");
-        toSpinner = new JSpinner(new SpinnerDateModel(to, null, null, Calendar.DAY_OF_MONTH));
+        toSpinner = new JSpinner(new SpinnerDateModel(to, null, null, DAY_OF_MONTH));
         toSpinner.setEnabled(editable);
 
         // description
@@ -129,15 +128,17 @@ public class EventView2 extends JFrame {
         deleteButton.setEnabled(editable);
 
         ActionListener deleteListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
                 // try to delete the event, show a message in case of failure
                 try {
                     deleteEvent();
+                    closeFrame();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not delete the event, exception caught: \n" +
-                    ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                        ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(EventView2.class).error(
+                        "Could not delete the event, exception caught: \n", ex);
                 }
                 return;
             };
@@ -151,7 +152,6 @@ public class EventView2 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // try to save the event, show a message in case of failure
                 try {
-                    // TODO actions according to the button "state"
                     if (e.getActionCommand().equals("Save")) {
                         saveEvent();
                     } else if(e.getActionCommand().equals("Join")) {
@@ -161,11 +161,13 @@ public class EventView2 extends JFrame {
                         leaveEvent();
                         ((JButton)e.getSource()).setText("Join");
                     }
-                    throw new Exception("TEST - NOT IMPLEMENTED");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not "+e.getActionCommand().toLowerCase()
-                            + " the event, exception caught: \n" + ex.getMessage(),
-                            "Operation unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                        + " the event, exception caught: \n" + ex.getMessage(),
+                        "Operation unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(EventView2.class).error(
+                        "Could not "+e.getActionCommand().toLowerCase()
+                        + " the event, exception caught: \n", ex);
                 }
                 return;
             };
@@ -219,6 +221,8 @@ public class EventView2 extends JFrame {
             JOptionPane.showMessageDialog(null,"Failed asserting if user joined the event, "
                 + "exception caught: \n" + e.getMessage(), "Operation failed!",
                 JOptionPane.ERROR_MESSAGE);
+            LoggerFactory.getLogger(EventView2.class).error("Failed asserting if "
+                + "user joined the event, exception caught: \n", e);
         }
         return joined;
     }
@@ -234,7 +238,10 @@ public class EventView2 extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                getEventManager().createEvent(event);
+                if (event.getId()==null) getEventManager().createEvent(event);
+                else getEventManager().updateEvent(event);
+                updateCalendars();
+                closeFrame();
             }
         });
     }
@@ -244,6 +251,7 @@ public class EventView2 extends JFrame {
             @Override
             public void run() {
                 getEventManager().deleteEvent(event);
+                updateCalendars();
             }
         });
     }
@@ -253,6 +261,7 @@ public class EventView2 extends JFrame {
             @Override
             public void run() {
                 getCalendarManager().saveUserEvent(currentUser, event);
+                updateCalendars();
             }
         });
     }
@@ -262,6 +271,7 @@ public class EventView2 extends JFrame {
             @Override
             public void run() {
                 getCalendarManager().deleteUserFromEvent(currentUser, event);
+                updateCalendars();
             }
         });
     }
@@ -282,5 +292,14 @@ public class EventView2 extends JFrame {
         protected Boolean doInBackground() {
             return getCalendarManager().getUsersForEvent(event).contains(currentUser);
         }
+    }
+
+    private void closeFrame() {
+        setVisible(false);
+    }
+
+    private void updateCalendars() {
+        Calendar.privateCalendar.setEvents(getCalendarManager().getEventsForUser(currentUser));
+        Calendar.publicCalendar.setEvents(getEventManager().selectSharedEvents());
     }
 }

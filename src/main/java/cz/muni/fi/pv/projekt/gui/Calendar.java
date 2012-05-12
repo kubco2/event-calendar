@@ -32,11 +32,14 @@ public class Calendar extends JPanel {
 
     private List<Event> events;
 
-    public Calendar() {
+    public static Calendar privateCalendar;
+    public static Calendar publicCalendar;
+
+    private Calendar() {
         this(null);
     }
 
-    public Calendar(Locale locale) {
+    private Calendar(Locale locale) {
         this.locale=(locale==null)?Locale.getDefault():locale;
 
         show = java.util.Calendar.getInstance(this.locale);
@@ -51,6 +54,16 @@ public class Calendar extends JPanel {
 
         initTop();
         initContent();
+    }
+
+    public static Calendar getCalendar(Locale locale, boolean shared) {
+        if (shared) {
+            if (publicCalendar==null) publicCalendar = new Calendar(locale);
+            return publicCalendar;
+        } else {
+            if (privateCalendar==null) privateCalendar = new Calendar(locale);
+            return privateCalendar;
+        }
     }
 
     public Calendar setEvents(List<Event> events) {

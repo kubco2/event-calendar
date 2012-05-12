@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -23,7 +22,6 @@ import javax.swing.border.EmptyBorder;
 public class EventListView extends JFrame {
 
     private Calendar.Day day;
-    private SimpleDateFormat dateFormat;
     private JPanel root;
 
     public EventListView(Calendar.Day day) {
@@ -62,8 +60,6 @@ public class EventListView extends JFrame {
         } else {
             boolean odd = true;
             for(Event event : day.getEvents()) {
-                //Box box = new Box(BoxLayout.LINE_AXIS);
-                //box.add(new EventField(event));
                 content.add(new EventField(event, odd));
                 odd = !odd;
             }
@@ -77,8 +73,9 @@ public class EventListView extends JFrame {
         ActionListener actionCreate = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EventView newEvent = new EventViewNew(CalendarMainView.currentUser);
-                newEvent.setVisible(true);
+                // this view is very probably invalid after working on an event
+                setVisible(false);
+                new EventView2(CalendarMainView.currentUser, null).setVisible(true);
             }
         };
         create.addActionListener(actionCreate);
@@ -123,8 +120,9 @@ class EventField extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                EventView ev = new EventViewShow(event, CalendarMainView.currentUser);
-                ev.setVisible(true);
+                // this view is very probably invalid after working on an event
+                setVisible(false);
+                new EventView2(CalendarMainView.currentUser, event).setVisible(true);
             }
         });
     }

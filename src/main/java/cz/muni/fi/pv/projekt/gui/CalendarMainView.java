@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -21,19 +22,8 @@ import java.util.List;
 public class CalendarMainView extends JFrame {
 
     static User currentUser = null;
-    static List<Event> events = null;
+    static List<Event> privateEvents = null;
     static List<Event> sharedEvents = null;
-    static {
-        ///feed user with test user
-        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
-        UserManager userManager = (UserManager) springCtx.getBean("userManager");
-        currentUser = userManager.selectUserById(1L);
-        //feed event list
-        CalendarManager calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
-        EventManager eventManager = (EventManager) springCtx.getBean("eventManager");
-        events = calendarManager.getEventsForUser(CalendarMainView.currentUser);
-        sharedEvents = eventManager.selectSharedEvents();
-    }
 
     // JPanels to be used in the main tabbed pane
     // all should be filled out in the respective classes
@@ -56,6 +46,11 @@ public class CalendarMainView extends JFrame {
 
     public CalendarMainView(User user) {
         currentUser = user;
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        CalendarManager calendarManager = (CalendarManager) springCtx.getBean("calendarManager");
+        EventManager eventManager = (EventManager) springCtx.getBean("eventManager");
+        privateEvents = calendarManager.getEventsForUser(currentUser);
+        sharedEvents = eventManager.selectSharedEvents();
         init();
     }
 
@@ -78,18 +73,17 @@ public class CalendarMainView extends JFrame {
         logoutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK));
 
         ActionListener newEventListener = new ActionListener() {
-            // TODO
             @Override
             public void actionPerformed(ActionEvent e) {
-                // nothing yet, to be implemented
                 // try to create a new event, show a message in case of failure
                 try {
                     new EventView2(currentUser, null).setVisible(true);
-//                    throw new Exception("TEST - NOT IMPLEMENTED");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not open the event "
-                            + "creation dialogue, exception caught: \n" + ex.getMessage(),
-                            "Can't create event!", JOptionPane.ERROR_MESSAGE);
+                        + "creation dialogue, exception caught: \n" + ex.getMessage(),
+                        "Can't create event!", JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(CalendarMainView.class).error("Could not open the event "
+                        + "creation dialogue, exception caught: \n", ex);
                 }
                 return;
             };
@@ -104,8 +98,10 @@ public class CalendarMainView extends JFrame {
                     System.exit(0);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not quit the application, "
-                            + "exception caught: \n" + ex.getMessage(),
-                            "Can't quit!", JOptionPane.ERROR_MESSAGE);
+                        + "exception caught: \n" + ex.getMessage(),
+                        "Can't quit!", JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(CalendarMainView.class).error("Could not quit the application, "
+                        + "exception caught: \n", ex);
                 }
                 return;
             };
@@ -122,8 +118,10 @@ public class CalendarMainView extends JFrame {
                     Login.getInstance().setVisible(true);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null,"Could not quit the application, "
-                            + "exception caught: \n" + ex.getMessage(),
-                            "Can't quit!", JOptionPane.ERROR_MESSAGE);
+                        + "exception caught: \n" + ex.getMessage(),
+                        "Can't quit!", JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(CalendarMainView.class).error("Could not quit the application, "
+                        + "exception caught: \n", ex);
                 }
                 return;
             };
