@@ -25,6 +25,10 @@ public class ProfileManagement extends JPanel {
 
     private User user = CalendarMainView.currentUser;
 
+    JTextField nickField;
+    JTextField nameField;
+    JPasswordField passwordField;
+
     public ProfileManagement() {
         init();
     }
@@ -36,17 +40,26 @@ public class ProfileManagement extends JPanel {
         JLabel nickLabel = new JLabel("New nick :");
         JLabel nameLabel = new JLabel("New name :");
         JLabel passwordLabel = new JLabel("New password :");
-        JTextField nickField = new JTextField(user.getNick());
-        JTextField nameField = new JTextField(user.getName());
-        JPasswordField passwordField = new JPasswordField(user.getPassword());
+        nickField = new JTextField(user.getNick());
+        nameField = new JTextField(user.getName());
+        passwordField = new JPasswordField(user.getPassword());
         JButton update = new JButton("Update");
 
         ActionListener updateListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO update the profile
                 try {
-                    throw new Exception("NOT YET IMPLEMENTED");
+                    // maybe ensure atomicity sometime in the future?
+                    user.setName(nameField.getText());
+                    user.setNick(nickField.getText());
+                    user.setPassword(String.valueOf(passwordField.getPassword()));
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            getUserManager().updateUser(user);
+                            CalendarMainView.instance.updateUser(user.getName());
+                        }
+                    });
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(null,"Update unsuccessful, exception caught: \n" +
                             ex.getMessage(), "Update unsuccessful!", JOptionPane.ERROR_MESSAGE);
@@ -74,8 +87,7 @@ public class ProfileManagement extends JPanel {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
-                                ((UserManager) springCtx.getBean("userManager")).deleteUser(user);
+                                getUserManager().deleteUser(user);
                             }
                         });
                         CalendarMainView.instance.logOut();
@@ -101,5 +113,10 @@ public class ProfileManagement extends JPanel {
         add(passwordField);
         add(delete);
         add(update);
+    }
+
+    private UserManager getUserManager() {
+        ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+        return (UserManager) springCtx.getBean("userManager");
     }
 }

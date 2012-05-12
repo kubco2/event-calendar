@@ -32,6 +32,9 @@ public class CalendarMainView extends JFrame {
 
     // main tabbed pane containing calendar and profile panels
     private JTabbedPane mainPanel;
+    
+    private String userName = "Logged in as : %s";
+    private JLabel userNameLabel;
 
     public static CalendarMainView instance;
 
@@ -135,10 +138,9 @@ public class CalendarMainView extends JFrame {
         mainPanel.addTab("Profile Management", profileManagement);
 
         // other various stuff. like username label.
-        JLabel userNameLabel = new JLabel();
-        String userName = "Logged in as : ";
-        userName += (currentUser == null)? "GUEST" : currentUser.getName();
-        userNameLabel.setText(userName);
+        userNameLabel = new JLabel();
+        String name = (currentUser == null)? "GUEST" : currentUser.getName();
+        updateUser(name);
         userNameLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         userNameLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -163,5 +165,9 @@ public class CalendarMainView extends JFrame {
             LoggerFactory.getLogger(CalendarMainView.class).error("Could not quit the application, "
                 + "exception caught: \n", ex);
         }
+    }
+    
+    public void updateUser(String user) {
+        userNameLabel.setText(String.format(userName, user));
     }
 }
