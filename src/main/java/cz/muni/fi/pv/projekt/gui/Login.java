@@ -33,6 +33,8 @@ public class Login extends JFrame {
     
     private static Login instance;
 
+    // this should not be used to create the login screen 
+    // - use getInstance() instead - avoids unnecessary problems
     private Login() {
         init();
     }
