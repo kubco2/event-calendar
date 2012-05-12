@@ -18,14 +18,4 @@ public class PersonalCalendar extends JPanel {
         Calendar calendar = new Calendar().setEvents(CalendarMainView.events);
         add(calendar);
     }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new PersonalCalendar().setVisible(true);
-            }
-        });
-    }
 }

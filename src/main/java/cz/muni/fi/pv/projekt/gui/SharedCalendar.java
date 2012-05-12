@@ -18,14 +18,4 @@ public class SharedCalendar extends JPanel {
         Calendar calendar = new Calendar().setEvents(CalendarMainView.sharedEvents);
         add(calendar);
     }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SharedCalendar().setVisible(true);
-            }
-        });
-    }
 }

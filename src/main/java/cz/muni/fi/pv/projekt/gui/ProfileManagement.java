@@ -64,14 +64,4 @@ public class ProfileManagement extends JPanel {
         add(delete);
         add(update);
     }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new ProfileManagement().setVisible(true);
-            }
-        });
-    }
 }
