@@ -48,6 +48,16 @@ public class Login extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calendar - Login / Registration");
 
+        Locale[] locale = {new Locale("sk","SK"),new Locale("cs","CZ"),new Locale("en","GB")};
+        localeSelect = new JComboBox(locale);
+        localeSelect.setSelectedItem(Locale.getDefault());
+        localeSelect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Locale.setDefault((Locale)localeSelect.getSelectedItem());
+            }
+        });
+        
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerSize(1);
@@ -61,8 +71,8 @@ public class Login extends JFrame {
 
         JLabel loginNickLabel = new JLabel("Nick");
         JLabel loginPasswordLabel = new JLabel("Password");
-        loginNickField = new JTextField("nick");
-        loginPasswordField = new JPasswordField("password");
+        loginNickField = new JTextField();
+        loginPasswordField = new JPasswordField();
         login = new JButton("Login");
 
         ActionListener loginListener = new ActionListener() {
@@ -89,9 +99,9 @@ public class Login extends JFrame {
         JLabel regNickLabel = new JLabel("Nick");
         JLabel regNameLabel = new JLabel("Name");
         JLabel regPasswordLabel = new JLabel("Password");
-        regNickField = new JTextField("nick");
-        regNameField = new JTextField("name");
-        regPasswordField = new JPasswordField("password");
+        regNickField = new JTextField();
+        regNameField = new JTextField();
+        regPasswordField = new JPasswordField();
         register = new JButton("Register");
 
         ActionListener regListener = new ActionListener() {
@@ -116,20 +126,13 @@ public class Login extends JFrame {
 
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(rightPanel);
-
-        add(splitPane);
-        Locale[] locale = {new Locale("sk","SK"),new Locale("cs","CZ"),new Locale("en","GB")};
-        localeSelect = new JComboBox(locale);
-        localeSelect.setSelectedItem(Locale.getDefault());
-        localeSelect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Locale.setDefault((Locale)localeSelect.getSelectedItem());
-            }
-        });
+        
         progressBar = new JProgressBar(0,0);
+
         add(localeSelect,BorderLayout.NORTH);
+        add(splitPane);
         add(progressBar,BorderLayout.SOUTH);
+        
         pack();
     }
 
@@ -159,6 +162,8 @@ public class Login extends JFrame {
                 User user = get();
                 setVisible(false);
                 new CalendarMainView(user).setVisible(true);
+                loginNickField.setText(null);
+                loginPasswordField.setText(null);
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
                         e.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
@@ -198,6 +203,9 @@ public class Login extends JFrame {
                 User user = get();
                 setVisible(false);
                 new CalendarMainView(user).setVisible(true);
+                regNameField.setText(null);
+                regNickField.setText(null);
+                regPasswordField.setText(null);
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
                         e.getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
@@ -208,7 +216,6 @@ public class Login extends JFrame {
 
     private PropertyChangeListener progressListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
-            System.out.println(evt.getPropertyName());
             if (evt.getPropertyName().equals("progress")) {
                 if(evt.getNewValue().equals(1)) {
                     progressBar.setIndeterminate(true);
