@@ -1,6 +1,7 @@
 package cz.muni.fi.pv.projekt.gui;
 
 import cz.muni.fi.pv.projekt.User;
+import cz.muni.fi.pv.projekt.UserManager;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,8 +11,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -61,9 +65,21 @@ public class ProfileManagement extends JPanel {
         ActionListener deleteListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO delete the profile
                 try {
-                    throw new Exception("NOT YET IMPLEMENTED");
+                    int answer = JOptionPane.showConfirmDialog(null, "You are about to delete "
+                        + "your user account.\nDo you really want to do that?",
+                        "User account deletion", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                    if (answer==JOptionPane.YES_OPTION) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
+                                ((UserManager) springCtx.getBean("userManager")).deleteUser(user);
+                            }
+                        });
+                        CalendarMainView.instance.logOut();
+                    }
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(null,"Deletion unsuccessful, exception caught: \n" +
                             ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);

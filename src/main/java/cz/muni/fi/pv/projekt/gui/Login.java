@@ -14,7 +14,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Locale;
-import javax.swing.plaf.InputMapUIResource;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -158,12 +157,13 @@ public class Login extends JFrame {
             return user;
         }
 
+        @Override
         protected void done() {
             try {
                 setProgress(2);
                 User user = get();
                 setVisible(false);
-                new CalendarMainView(user).setVisible(true);
+                CalendarMainView.getCalendarMainView(user).setVisible(true);
                 loginNickField.setText(null);
                 loginPasswordField.setText(null);
                 regNameField.setText(null);
@@ -207,12 +207,13 @@ public class Login extends JFrame {
             return user;
         }
 
+        @Override
         protected void done() {
             try {
                 setProgress(2);
                 User user = get();
                 setVisible(false);
-                new CalendarMainView(user).setVisible(true);
+                CalendarMainView.getCalendarMainView(user).setVisible(true);
                 loginNickField.setText(null);
                 loginPasswordField.setText(null);
                 regNameField.setText(null);
@@ -232,6 +233,7 @@ public class Login extends JFrame {
     }
 
     private PropertyChangeListener progressListener = new PropertyChangeListener() {
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals("progress")) {
                 if(evt.getNewValue().equals(1)) {
