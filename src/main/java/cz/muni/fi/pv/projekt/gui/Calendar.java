@@ -75,14 +75,14 @@ public class Calendar extends JPanel {
 
     private void initTop() {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton previous = new JButton(new ImageIcon("src/main/Resources/icons/left_16.png"));
+        JButton previous = new JButton(new ImageIcon("src/main/resources/icons/left_16.png"));
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 prev();
             }
         });
-        JButton next = new JButton(new ImageIcon("src/main/Resources/icons/right_16.png"));
+        JButton next = new JButton(new ImageIcon("src/main/resources/icons/right_16.png"));
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
