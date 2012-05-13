@@ -251,7 +251,7 @@ public class Login extends JFrame {
     private PropertyChangeListener progressListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(i18nLang.getString("PROGRESS"))) {
+            if (evt.getPropertyName().equals("progress")) {
                 if(evt.getNewValue().equals(1)) {
                     progressBar.setIndeterminate(true);
                 } else {
