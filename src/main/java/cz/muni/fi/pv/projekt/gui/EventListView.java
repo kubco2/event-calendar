@@ -129,8 +129,6 @@ class EventField extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // this view is very probably invalid after working on an event
-                setVisible(false);
                 new EventView2(CalendarMainView.currentUser, event).setVisible(true);
             }
         });
