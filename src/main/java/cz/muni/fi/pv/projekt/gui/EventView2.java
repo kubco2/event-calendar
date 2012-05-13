@@ -70,7 +70,7 @@ public class EventView2 extends JFrame {
             from = event.getFrom();
             to = event.getTo();
             shared = event.isShared();
-            if (event.getOwner() != user) {
+            if (event.getOwner().getId() != user.getId()) {
                 editable = false;
                 if (userJoined()) {
                     joinLeaveSave = i18nLang.getString("LEAVE");
