@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -29,14 +30,17 @@ public class Login extends JFrame {
     private JTextField regNameField;
     private JPasswordField regPasswordField;
     private JButton register;
-    JComboBox localeSelect;
+    private JComboBox localeSelect;
     private JProgressBar progressBar;
+    private JSplitPane splitPane;
     
     private static Login instance;
+    ResourceBundle i18nLang;
 
     // this should not be used to create the login screen 
     // - use getInstance() instead - avoids unnecessary problems
     private Login() {
+        i18nLang = ResourceBundle.getBundle("i18n.login", Locale.getDefault());
         init();
     }
 
@@ -46,8 +50,9 @@ public class Login extends JFrame {
     }
 
     private void init() {
+        System.out.println("PERFORMING INITIALIZATION");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Calendar - Login / Registration");
+        setTitle(i18nLang.getString("TITLE"));
 
         Locale[] locale = {new Locale("sk","SK"),new Locale("cs","CZ"),new Locale("en","GB")};
         localeSelect = new JComboBox(locale);
@@ -56,10 +61,29 @@ public class Login extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Locale.setDefault((Locale)localeSelect.getSelectedItem());
+                i18nLang = ResourceBundle.getBundle("i18n.login", Locale.getDefault());
+                
+                setVisible(false);
+                remove(splitPane);
+                initSplitPane();
+                add(splitPane);
+                setVisible(true);
             }
         });
         
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false);
+        initSplitPane();
+        
+        progressBar = new JProgressBar(0,0);
+
+        add(localeSelect,BorderLayout.NORTH);
+        add(splitPane);
+        add(progressBar,BorderLayout.SOUTH);
+        
+        pack();
+    }
+
+    private void initSplitPane() {
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerSize(1);
 
@@ -70,11 +94,11 @@ public class Login extends JFrame {
         rightPanel.setLayout(new GridLayout(4, 2, 5, 5));
         rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel loginNickLabel = new JLabel("Nick");
-        JLabel loginPasswordLabel = new JLabel("Password");
+        JLabel loginNickLabel = new JLabel(i18nLang.getString("NICK"));
+        JLabel loginPasswordLabel = new JLabel(i18nLang.getString("PASSWORD"));
         loginNickField = new JTextField();
         loginPasswordField = new JPasswordField();
-        login = new JButton("Login");
+        login = new JButton(i18nLang.getString("LOGIN"));
 
         ActionListener loginListener = new ActionListener() {
             @Override
@@ -97,13 +121,13 @@ public class Login extends JFrame {
         leftPanel.add(new Panel());
 
 
-        JLabel regNickLabel = new JLabel("Nick");
-        JLabel regNameLabel = new JLabel("Name");
-        JLabel regPasswordLabel = new JLabel("Password");
+        JLabel regNickLabel = new JLabel(i18nLang.getString("NICK"));
+        JLabel regNameLabel = new JLabel(i18nLang.getString("NAME"));
+        JLabel regPasswordLabel = new JLabel(i18nLang.getString("PASSWORD"));
         regNickField = new JTextField();
         regNameField = new JTextField();
         regPasswordField = new JPasswordField();
-        register = new JButton("Register");
+        register = new JButton(i18nLang.getString("REGISTER"));
 
         ActionListener regListener = new ActionListener() {
             @Override
@@ -127,14 +151,6 @@ public class Login extends JFrame {
 
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(rightPanel);
-        
-        progressBar = new JProgressBar(0,0);
-
-        add(localeSelect,BorderLayout.NORTH);
-        add(splitPane);
-        add(progressBar,BorderLayout.SOUTH);
-        
-        pack();
     }
 
     private class LoginProcess extends SwingWorker<User,Integer> {
@@ -145,14 +161,14 @@ public class Login extends JFrame {
             char[] pass = loginPasswordField.getPassword();
 
             if(nick.length() ==0 || pass.length ==0) {
-                throw new IllegalArgumentException("All fields must be filled");
+                throw new IllegalArgumentException(i18nLang.getString("EXC_FIELDS"));
             }
 
             ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
             UserManager userManager = (UserManager) springCtx.getBean("userManager");
             User user = userManager.selectUserByNick(nick);
             if(user==null || !Arrays.equals(user.getPassword().toCharArray(),pass)) {
-                throw new IllegalAccessException("Bad nick or password!");
+                throw new IllegalAccessException(i18nLang.getString("EXC_BAD"));
             }
             return user;
         }
@@ -170,13 +186,13 @@ public class Login extends JFrame {
                 regNickField.setText(null);
                 regPasswordField.setText(null);
             } catch(Exception e) {
-                JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
-                        e.getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                LoggerFactory.getLogger(Login.class).error("Login unsuccessful, exception caught: \n", e);
+                JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_LOGIN") +
+                        e.getMessage(), i18nLang.getString("EXC_LOGIN_TITLE"), JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error(i18nLang.getString("EXC_LOGIN"), e);
             } catch (Error er) {
-                JOptionPane.showMessageDialog(null,"Login unsuccessful, exception caught: \n" +
-                        er.getCause().getMessage(), "Login unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                LoggerFactory.getLogger(Login.class).error("Login unsuccessful, exception caught: \n", er);
+                JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_LOGIN") +
+                        er.getCause().getMessage(), i18nLang.getString("EXC_LOGIN_TITLE"), JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error(i18nLang.getString("EXC_LOGIN"), er);
             }
             login.setEnabled(true);
         }
@@ -192,17 +208,17 @@ public class Login extends JFrame {
             user.setPassword(String.valueOf(regPasswordField.getPassword()));
 
             if(user.getName().length() ==0 || user.getNick().length() ==0 || user.getPassword().length() ==0) {
-                throw new IllegalArgumentException("All fields must be filled");
+                throw new IllegalArgumentException(i18nLang.getString("EXC_FIELDS"));
             }
 
             ApplicationContext springCtx = new ClassPathXmlApplicationContext("spring-context.xml");
             UserManager userManager = (UserManager) springCtx.getBean("userManager");
             if(userManager.selectUserByNick(user.getNick()) != null) {
-                throw new IllegalArgumentException("Nick is used!");
+                throw new IllegalArgumentException(i18nLang.getString("EXC_USED"));
             }
             userManager.createUser(user);
             if(user.getId()==null) {
-                throw new IllegalArgumentException("User could not be created!");
+                throw new IllegalArgumentException(i18nLang.getString("EXC_NOT_CREATED"));
             }
             return user;
         }
@@ -220,13 +236,13 @@ public class Login extends JFrame {
                 regNickField.setText(null);
                 regPasswordField.setText(null);
             } catch(Exception e) {
-                JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
-                        e.getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                LoggerFactory.getLogger(Login.class).error("Registration unsuccessful, exception caught: \n", e);
+                JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_REGISTRATION") +
+                        e.getMessage(), i18nLang.getString("EXC_REGISTRATION_TITLE"), JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error(i18nLang.getString("EXC_REGISTRATION"), e);
             } catch (Error er) {
-                JOptionPane.showMessageDialog(null,"Registration unsuccessful, exception caught: \n" +
-                        er.getCause().getMessage(), "Registration unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                LoggerFactory.getLogger(Login.class).error("Registration unsuccessful, exception caught: \n", er);
+                JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_REGISTRATION") +
+                        er.getCause().getMessage(), i18nLang.getString("EXC_REGISTRATION_TITLE"), JOptionPane.ERROR_MESSAGE);
+                LoggerFactory.getLogger(Login.class).error(i18nLang.getString("EXC_REGISTRATION"), er);
             }
             register.setEnabled(true);
         }
@@ -235,7 +251,7 @@ public class Login extends JFrame {
     private PropertyChangeListener progressListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals("progress")) {
+            if (evt.getPropertyName().equals(i18nLang.getString("PROGRESS"))) {
                 if(evt.getNewValue().equals(1)) {
                     progressBar.setIndeterminate(true);
                 } else {

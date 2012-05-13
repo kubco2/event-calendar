@@ -201,16 +201,6 @@ public class EventView2 extends JFrame {
         pack();
     }
 
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new EventView2(new User(), null).setVisible(true);
-            }
-        });
-    }
-
     private boolean userJoined() {
         UserJoinedQuery ujquery = new UserJoinedQuery();
         ujquery.execute();
