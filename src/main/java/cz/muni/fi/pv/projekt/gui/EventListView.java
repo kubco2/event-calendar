@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -24,11 +26,15 @@ public class EventListView extends JFrame {
     private Calendar.Day day;
     private JPanel root;
 
+    ResourceBundle i18nLang;
+
     public EventListView(Calendar.Day day) {
         if(day == null) {
-            throw new IllegalArgumentException("day cant be null");
+            throw new IllegalArgumentException(i18nLang.getString("EXC_DAY_NULL"));
         }
         this.day=day;
+
+        i18nLang = ResourceBundle.getBundle("i18n.eventListView", Locale.getDefault());
 
         init();
     }
@@ -53,7 +59,7 @@ public class EventListView extends JFrame {
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content,BoxLayout.PAGE_AXIS));
         if(!day.hasEvents()) {
-            JLabel noEvents = new JLabel("There are no events.");
+            JLabel noEvents = new JLabel(i18nLang.getString("NO_EVTS"));
             Box box = new Box(BoxLayout.LINE_AXIS);
             box.add(noEvents);
             content.add(box);
@@ -69,7 +75,7 @@ public class EventListView extends JFrame {
     }
 
     private void initBottom() {
-        JButton create = new JButton("Create Event");
+        JButton create = new JButton(i18nLang.getString("CREATE"));
         ActionListener actionCreate = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -87,9 +93,12 @@ class EventField extends JPanel {
 
     private Event event;
 
+    ResourceBundle i18nLang;
+
     public EventField(Event evt, boolean odd) {
         event = evt;
         Color colour = odd? Color.WHITE:getBackground();
+        i18nLang = ResourceBundle.getBundle("i18n.eventListView", Locale.getDefault());
         init(colour);
     }
 
@@ -104,10 +113,10 @@ class EventField extends JPanel {
         JPanel empty = new JPanel();
         empty.setBackground(colour);
 
-        JLabel fromLabel = new JLabel("From :");
+        JLabel fromLabel = new JLabel(i18nLang.getString("FROM"));
         JLabel fromValue = new JLabel(event.getFrom().toString());
 
-        JLabel toLabel = new JLabel("To :");
+        JLabel toLabel = new JLabel(i18nLang.getString("TO"));
         JLabel toValue = new JLabel(event.getTo().toString());
 
         add(name);

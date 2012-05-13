@@ -15,7 +15,7 @@ public class SharedCalendar extends JPanel {
 
     private void init() {
         setLayout(new BorderLayout());
-        Calendar calendar = Calendar.getCalendar(null, true).setEvents(CalendarMainView.sharedEvents);
+        Calendar calendar = Calendar.getCalendar(true).setEvents(CalendarMainView.sharedEvents);
         add(calendar);
     }
 }

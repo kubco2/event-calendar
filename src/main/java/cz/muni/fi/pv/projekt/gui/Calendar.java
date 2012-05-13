@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,33 +36,33 @@ public class Calendar extends JPanel {
     public static Calendar privateCalendar;
     public static Calendar publicCalendar;
 
+    private ResourceBundle i18nLang;
+
     private Calendar() {
-        this(null);
-    }
+        locale = Locale.getDefault();
 
-    private Calendar(Locale locale) {
-        this.locale=(locale==null)?Locale.getDefault():locale;
-
-        show = java.util.Calendar.getInstance(this.locale);
+        show = java.util.Calendar.getInstance(locale);
         show.set(java.util.Calendar.HOUR,0);
         show.set(java.util.Calendar.MINUTE,0);
         show.set(java.util.Calendar.SECOND,0);
         show.set(java.util.Calendar.MILLISECOND,0);
         now  = show.getTime();
-        fullDateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy",this.locale);
-        monthYearDateFormat = new SimpleDateFormat("MMMM, yyyy",this.locale);
+        fullDateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy", locale);
+        monthYearDateFormat = new SimpleDateFormat("MMMM, yyyy", locale);
         setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+
+        i18nLang = ResourceBundle.getBundle("i18n.calendar", locale);
 
         initTop();
         initContent();
     }
 
-    public static Calendar getCalendar(Locale locale, boolean shared) {
+    public static Calendar getCalendar(boolean shared) {
         if (shared) {
-            if (publicCalendar==null) publicCalendar = new Calendar(locale);
+            if (publicCalendar==null) publicCalendar = new Calendar();
             return publicCalendar;
         } else {
-            if (privateCalendar==null) privateCalendar = new Calendar(locale);
+            if (privateCalendar==null) privateCalendar = new Calendar();
             return privateCalendar;
         }
     }
@@ -194,7 +195,7 @@ public class Calendar extends JPanel {
         private List<Event> dayEvents = new ArrayList<Event>();
         public Day(Date date) {
             if(date == null) {
-                throw new IllegalArgumentException("bad generated day");
+                throw new IllegalArgumentException(i18nLang.getString("EXC_BADDAY"));
             }
             this.date = date;
             findEvents();

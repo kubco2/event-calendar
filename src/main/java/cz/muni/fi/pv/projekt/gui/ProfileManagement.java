@@ -5,6 +5,8 @@ import cz.muni.fi.pv.projekt.UserManager;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,7 +31,10 @@ public class ProfileManagement extends JPanel {
     JTextField nameField;
     JPasswordField passwordField;
 
+    private ResourceBundle i18nLang;
+
     public ProfileManagement() {
+        i18nLang = ResourceBundle.getBundle("i18n.profileManagement", Locale.getDefault());
         init();
     }
 
@@ -37,13 +42,13 @@ public class ProfileManagement extends JPanel {
         setLayout(new GridLayout(4, 2, 5, 5));
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel nickLabel = new JLabel("New nick :");
-        JLabel nameLabel = new JLabel("New name :");
-        JLabel passwordLabel = new JLabel("New password :");
+        JLabel nickLabel = new JLabel(i18nLang.getString("NICK"));
+        JLabel nameLabel = new JLabel(i18nLang.getString("NAME"));
+        JLabel passwordLabel = new JLabel(i18nLang.getString("PASSWORD"));
         nickField = new JTextField(user.getNick());
         nameField = new JTextField(user.getName());
         passwordField = new JPasswordField(user.getPassword());
-        JButton update = new JButton("Update");
+        JButton update = new JButton(i18nLang.getString("UPDATE"));
 
         ActionListener updateListener = new ActionListener() {
             @Override
@@ -61,27 +66,26 @@ public class ProfileManagement extends JPanel {
                         }
                     });
                 } catch(Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Update unsuccessful, exception caught: \n" +
-                            ex.getMessage(), "Update unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(ProfileManagement.class).error("Update unsuccessful, exception caught: \n", e);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_UPDATE") +
+                            ex.getMessage(), i18nLang.getString("EXC_UPDATE_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(ProfileManagement.class).error(i18nLang.getString("EXC_UPDATE"), e);
                 } catch (Error er) {
-                    JOptionPane.showMessageDialog(null,"Update unsuccessful, exception caught: \n" +
-                            er.getCause().getMessage(), "Update unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(ProfileManagement.class).error("Update unsuccessful, exception caught: \n", er);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_UPDATE") +
+                            er.getCause().getMessage(), i18nLang.getString("EXC_UPDATE_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(ProfileManagement.class).error(i18nLang.getString("EXC_UPDATE"), er);
                 }
             }
         };
         update.addActionListener(updateListener);
 
-        JButton delete = new JButton("Delete Profile");
+        JButton delete = new JButton(i18nLang.getString("DELETE"));
 
         ActionListener deleteListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    int answer = JOptionPane.showConfirmDialog(null, "You are about to delete "
-                        + "your user account.\nDo you really want to do that?",
-                        "User account deletion", JOptionPane.YES_NO_OPTION,
+                    int answer = JOptionPane.showConfirmDialog(null, i18nLang.getString("WARN_DELETE"),
+                        i18nLang.getString("WARN_DELETE_TITLE"), JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE);
                     if (answer==JOptionPane.YES_OPTION) {
                         SwingUtilities.invokeLater(new Runnable() {
@@ -93,13 +97,13 @@ public class ProfileManagement extends JPanel {
                         CalendarMainView.instance.logOut();
                     }
                 } catch(Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Deletion unsuccessful, exception caught: \n" +
-                            ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(ProfileManagement.class).error("Update unsuccessful, exception caught: \n", e);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_DELETE") +
+                            ex.getMessage(), i18nLang.getString("EXC_DELETE_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(ProfileManagement.class).error(i18nLang.getString("EXC_DELETE"), e);
                 } catch (Error er) {
-                    JOptionPane.showMessageDialog(null,"Deletion unsuccessful, exception caught: \n" +
-                            er.getCause().getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(ProfileManagement.class).error("Deletion unsuccessful, exception caught: \n", er);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_DELETE") +
+                            er.getCause().getMessage(), i18nLang.getString("EXC_DELETE_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(ProfileManagement.class).error(i18nLang.getString("EXC_DELETE"), er);
                 }
             }
         };

@@ -15,7 +15,7 @@ public class PersonalCalendar extends JPanel {
 
     private void init() {
         setLayout(new BorderLayout());
-        Calendar calendar = Calendar.getCalendar(null, false).setEvents(CalendarMainView.privateEvents);
+        Calendar calendar = Calendar.getCalendar(false).setEvents(CalendarMainView.privateEvents);
         add(calendar);
     }
 }

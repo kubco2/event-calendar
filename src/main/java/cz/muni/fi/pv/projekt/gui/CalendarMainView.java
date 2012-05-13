@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -33,10 +35,11 @@ public class CalendarMainView extends JFrame {
     // main tabbed pane containing calendar and profile panels
     private JTabbedPane mainPanel;
     
-    private String userName = "Logged in as : %s";
+    private String userName;
     private JLabel userNameLabel;
 
     public static CalendarMainView instance;
+    private ResourceBundle i18nLang;
 
     /* Apart from the above, we could do a menu with buttons/items/options
      * that would do the same as clicking the tabs on the tabbed pane mainPanel.
@@ -51,6 +54,10 @@ public class CalendarMainView extends JFrame {
         EventManager eventManager = (EventManager) springCtx.getBean("eventManager");
         privateEvents = calendarManager.getEventsForUser(currentUser);
         sharedEvents = eventManager.selectSharedEvents();
+
+        i18nLang = ResourceBundle.getBundle("i18n.mainView", Locale.getDefault());
+        userName = i18nLang.getString("AS");
+
         init();
     }
 
@@ -61,7 +68,7 @@ public class CalendarMainView extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Calendar");
+        setTitle(i18nLang.getString("TITLE"));
 
         // root panel
         JPanel rootPanel = new JPanel();
@@ -69,10 +76,10 @@ public class CalendarMainView extends JFrame {
 
         // menu stuff
         JMenuBar menuBar = new JMenuBar();
-        JMenu mainMenu = new JMenu("Calendar");
-        JMenuItem newEventItem = new JMenuItem("New Event");
-        JMenuItem quitItem = new JMenuItem("Quit");
-        JMenuItem logoutItem = new JMenuItem("Log Out");
+        JMenu mainMenu = new JMenu(i18nLang.getString("TITLE"));
+        JMenuItem newEventItem = new JMenuItem(i18nLang.getString("NEW"));
+        JMenuItem quitItem = new JMenuItem(i18nLang.getString("QUIT"));
+        JMenuItem logoutItem = new JMenuItem(i18nLang.getString("LOGOUT"));
         newEventItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
         quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
         logoutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK));
@@ -84,11 +91,9 @@ public class CalendarMainView extends JFrame {
                 try {
                     new EventView2(currentUser, null).setVisible(true);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Could not open the event "
-                        + "creation dialogue, exception caught: \n" + ex.getMessage(),
-                        "Can't create event!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(CalendarMainView.class).error("Could not open the event "
-                        + "creation dialogue, exception caught: \n", ex);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_OPEN") + ex.getMessage(),
+                        i18nLang.getString("EXC_OPEN_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(CalendarMainView.class).error(i18nLang.getString("EXC_OPEN"), ex);
                 }
             };
         };
@@ -101,11 +106,9 @@ public class CalendarMainView extends JFrame {
                 try {
                     System.exit(0);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Could not quit the application, "
-                        + "exception caught: \n" + ex.getMessage(),
-                        "Can't quit!", JOptionPane.ERROR_MESSAGE);
-                    LoggerFactory.getLogger(CalendarMainView.class).error("Could not quit the application, "
-                        + "exception caught: \n", ex);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_QUIT") + ex.getMessage(),
+                        i18nLang.getString("EXC_QUIT_TITLE"), JOptionPane.ERROR_MESSAGE);
+                    LoggerFactory.getLogger(CalendarMainView.class).error(i18nLang.getString("EXC_QUIT"), ex);
                 }
             };
         };
@@ -133,13 +136,13 @@ public class CalendarMainView extends JFrame {
         sharedCal = new SharedCalendar();
         personalCal = new PersonalCalendar();
 
-        mainPanel.addTab("Personal Calendar", personalCal);
-        mainPanel.addTab("Public Calendar", sharedCal);
-        mainPanel.addTab("Profile Management", profileManagement);
+        mainPanel.addTab(i18nLang.getString("PERSONA"), personalCal);
+        mainPanel.addTab(i18nLang.getString("PUBLIC"), sharedCal);
+        mainPanel.addTab(i18nLang.getString("PROFILE"), profileManagement);
 
         // other various stuff. like username label.
         userNameLabel = new JLabel();
-        String name = (currentUser == null)? "GUEST" : currentUser.getName();
+        String name = (currentUser == null)? i18nLang.getString("GUEST") : currentUser.getName();
         updateUser(name);
         userNameLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         userNameLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -159,11 +162,9 @@ public class CalendarMainView extends JFrame {
             currentUser = null;
             Login.getInstance().setVisible(true);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null,"Could not quit the application, "
-                + "exception caught: \n" + ex.getMessage(),
-                "Can't quit!", JOptionPane.ERROR_MESSAGE);
-            LoggerFactory.getLogger(CalendarMainView.class).error("Could not quit the application, "
-                + "exception caught: \n", ex);
+            JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_LOGOUT") + ex.getMessage(),
+                i18nLang.getString("EXC_LOGOUT_TITLE"), JOptionPane.ERROR_MESSAGE);
+            LoggerFactory.getLogger(CalendarMainView.class).error(i18nLang.getString("EXC_LOGOUT"), ex);
         }
     }
     

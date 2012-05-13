@@ -6,12 +6,13 @@ import cz.muni.fi.pv.projekt.CalendarManager;
 import cz.muni.fi.pv.projekt.Event;
 import cz.muni.fi.pv.projekt.EventManager;
 import cz.muni.fi.pv.projekt.User;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import org.slf4j.LoggerFactory;
@@ -28,13 +29,13 @@ public class EventView2 extends JFrame {
     private Event event = null;
 
     private String owner;
-    private String name = "<name the event>";
-    private String place = "<place the event somewhere>";
-    private String desc = "<describe the event>";
-    private Date from = new Date();
-    private Date to = new Date();
-    private Boolean shared = false;
-    private String joinLeaveSave = "Save";
+    private String name;
+    private String place;
+    private String desc;
+    private Date from;
+    private Date to;
+    private Boolean shared;
+    private String joinLeaveSave;
 
     JTextField ownerField;
     JTextField nameField;
@@ -44,10 +45,20 @@ public class EventView2 extends JFrame {
     JTextArea descArea;
     JCheckBox shareBox;
 
+    private ResourceBundle i18nLang;
+
     private boolean editable = true;
 
     public EventView2(User user, Event event) {
         super();
+        i18nLang = ResourceBundle.getBundle("i18n.eventView2", Locale.getDefault());
+        name = i18nLang.getString("<NAME>");
+        place = i18nLang.getString("<PLACE>");
+        desc = i18nLang.getString("<DESCRIBE>");
+        from = new Date();
+        to = new Date();
+        shared = false;
+        joinLeaveSave = i18nLang.getString("SAVE");
         currentUser = user;
         owner = user.getName();
         if (event != null) {
@@ -62,9 +73,9 @@ public class EventView2 extends JFrame {
             if (event.getOwner() != user) {
                 editable = false;
                 if (userJoined()) {
-                    joinLeaveSave = "Leave";
+                    joinLeaveSave = i18nLang.getString("LEAVE");
                 } else {
-                    joinLeaveSave = "Join";
+                    joinLeaveSave = i18nLang.getString("JOIN");
                 }
             }
         } else this.event = new Event();
@@ -73,7 +84,7 @@ public class EventView2 extends JFrame {
 
     private void init() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle("Event");
+        setTitle(i18nLang.getString("EVENT"));
 
         // the root panel(s)
         JPanel rootPanel = new JPanel();
@@ -85,46 +96,46 @@ public class EventView2 extends JFrame {
 
         // the content
         // owner
-        JLabel ownerLabel = new JLabel("Event owner");
+        JLabel ownerLabel = new JLabel(i18nLang.getString("OWNER"));
         ownerLabel.setFont(ownerLabel.getFont().deriveFont(Font.ITALIC));
         ownerField = new JTextField(owner);
         ownerField.setFont(ownerField.getFont().deriveFont(Font.ITALIC));
         ownerField.setEnabled(false);
 
         // name
-        JLabel nameLabel = new JLabel("Event name");
+        JLabel nameLabel = new JLabel(i18nLang.getString("NAME"));
         nameField = new JTextField(name);
         nameField.setEnabled(editable);
 
         // place
-        JLabel placeLabel = new JLabel("Location");
+        JLabel placeLabel = new JLabel(i18nLang.getString("LOCATION"));
         placeField = new JTextField(place);
         placeField.setEnabled(editable);
 
         // from
-        JLabel fromLabel = new JLabel("Event starts");
+        JLabel fromLabel = new JLabel(i18nLang.getString("STARTS"));
         fromSpinner = new JSpinner(new SpinnerDateModel(from, null, null, DAY_OF_MONTH));
         fromSpinner.setEnabled(editable);
 
         // to
-        JLabel toLabel = new JLabel("Event ends");
+        JLabel toLabel = new JLabel(i18nLang.getString("ENDS"));
         toSpinner = new JSpinner(new SpinnerDateModel(to, null, null, DAY_OF_MONTH));
         toSpinner.setEnabled(editable);
 
         // description
-        JLabel descLabel = new JLabel("Description");
+        JLabel descLabel = new JLabel(i18nLang.getString("DESCRIPTION"));
         descArea = new JTextArea(desc);
         descArea.setRows(5);
         descArea.setEnabled(editable);
         JScrollPane descScroll = new JScrollPane(descArea);
 
         // shared
-        JLabel shareLabel = new JLabel("Will others see this event?");
-        shareBox = new JCheckBox("Is shared event.", shared);
+        JLabel shareLabel = new JLabel(i18nLang.getString("SHARE"));
+        shareBox = new JCheckBox(i18nLang.getString("IS_SHARED"), shared);
         shareBox.setEnabled(editable);
 
         // buttons
-        JButton deleteButton = new JButton("Delete");
+        JButton deleteButton = new JButton(i18nLang.getString("DELETE"));
         deleteButton.setEnabled(editable);
 
         ActionListener deleteListener = new ActionListener() {
@@ -135,10 +146,10 @@ public class EventView2 extends JFrame {
                     deleteEvent();
                     closeFrame();
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Could not delete the event, exception caught: \n" +
-                        ex.getMessage(), "Deletion unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null,i18nLang.getString("EXC_DELETE") +
+                        ex.getMessage(), i18nLang.getString("EXC_DELETE_TITLE"), JOptionPane.ERROR_MESSAGE);
                     LoggerFactory.getLogger(EventView2.class).error(
-                        "Could not delete the event, exception caught: \n", ex);
+                        i18nLang.getString("EXC_DELETE"), ex);
                 }
                 return;
             };
@@ -152,22 +163,22 @@ public class EventView2 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // try to save the event, show a message in case of failure
                 try {
-                    if (e.getActionCommand().equals("Save")) {
+                    if (e.getActionCommand().equals(i18nLang.getString("SAVE"))) {
                         saveEvent();
-                    } else if(e.getActionCommand().equals("Join")) {
+                    } else if(e.getActionCommand().equals(i18nLang.getString("JOIN"))) {
                         joinEvent();
-                        ((JButton)e.getSource()).setText("Leave");
-                    } else if (e.getActionCommand().equals("Leave")) {
+                        ((JButton)e.getSource()).setText(i18nLang.getString("LEAVE"));
+                    } else if (e.getActionCommand().equals(i18nLang.getString("LEAVE"))) {
                         leaveEvent();
-                        ((JButton)e.getSource()).setText("Join");
+                        ((JButton)e.getSource()).setText(i18nLang.getString("JOIN"));
                     }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,"Could not "+e.getActionCommand().toLowerCase()
-                        + " the event, exception caught: \n" + ex.getMessage(),
-                        "Operation unsuccessful!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, String.format(i18nLang.getString("EXC_SAVE"),
+                        e.getActionCommand().toLowerCase()) + ex.getMessage(),
+                        i18nLang.getString("EXC_SAVE_TITLE"), JOptionPane.ERROR_MESSAGE);
                     LoggerFactory.getLogger(EventView2.class).error(
-                        "Could not "+e.getActionCommand().toLowerCase()
-                        + " the event, exception caught: \n", ex);
+                        String.format(i18nLang.getString("EXC_SAVE"),
+                        e.getActionCommand().toLowerCase()), ex);
                 }
                 return;
             };
@@ -208,11 +219,9 @@ public class EventView2 extends JFrame {
         try {
             joined = ujquery.get().booleanValue();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Failed asserting if user joined the event, "
-                + "exception caught: \n" + e.getMessage(), "Operation failed!",
-                JOptionPane.ERROR_MESSAGE);
-            LoggerFactory.getLogger(EventView2.class).error("Failed asserting if "
-                + "user joined the event, exception caught: \n", e);
+            JOptionPane.showMessageDialog(null, i18nLang.getString("EXC_ASSERT_JOIN")
+                + e.getMessage(), i18nLang.getString("EXC_SAVE_TITLE"), JOptionPane.ERROR_MESSAGE);
+            LoggerFactory.getLogger(EventView2.class).error(i18nLang.getString("EXC_ASSERT_JOIN"), e);
         }
         return joined;
     }

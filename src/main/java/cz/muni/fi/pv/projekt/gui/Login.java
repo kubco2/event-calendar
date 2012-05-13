@@ -35,7 +35,7 @@ public class Login extends JFrame {
     private JSplitPane splitPane;
     
     private static Login instance;
-    ResourceBundle i18nLang;
+    private ResourceBundle i18nLang;
 
     // this should not be used to create the login screen 
     // - use getInstance() instead - avoids unnecessary problems
